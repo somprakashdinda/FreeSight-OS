@@ -274,7 +274,12 @@ class WebcamCapture:
                 pass
             self._cap = None
 
-        self._cap = cv2.VideoCapture(self._camera_index)
+        if _IS_WINDOWS:
+            self._cap = cv2.VideoCapture(self._camera_index, cv2.CAP_DSHOW)
+            if not self._cap.isOpened():
+                self._cap = cv2.VideoCapture(self._camera_index)
+        else:
+            self._cap = cv2.VideoCapture(self._camera_index)
         self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, CV_CONFIG.STREAM_WIDTH)
         self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CV_CONFIG.STREAM_HEIGHT)
 
