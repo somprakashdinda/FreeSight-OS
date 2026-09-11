@@ -286,7 +286,7 @@ class StudioHTTPHandler(BaseHTTPRequestHandler):
                         self.wfile.write(frame_bytes)
                         self.wfile.write(b"\r\n")
                     time.sleep(0.033)  # ~30 FPS
-            except (ConnectionResetError, BrokenPipeError):
+            except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, OSError):
                 pass
         else:
             self.send_error(404, "File Not Found")
@@ -310,6 +310,14 @@ class StudioHTTPHandler(BaseHTTPRequestHandler):
 # Server Main Launcher
 # ---------------------------------------------------------------------------
 
+class SilentThreadingHTTPServer(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        exc_type, exc_val, _ = sys.exc_info()
+        if exc_type in (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
+            return
+        super().handle_error(request, client_address)
+
+
 def run_server(port: int = SERVER_PORT, auto_open_browser: bool = True):
     global server_running
 
@@ -318,7 +326,7 @@ def run_server(port: int = SERVER_PORT, auto_open_browser: bool = True):
     vision_thread.start()
 
     server_address = ("0.0.0.0", port)
-    httpd = ThreadingHTTPServer(server_address, StudioHTTPHandler)
+    httpd = SilentThreadingHTTPServer(server_address, StudioHTTPHandler)
 
     url = f"http://localhost:{port}"
     print()
