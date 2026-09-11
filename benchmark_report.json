@@ -1,0 +1,96 @@
+{
+  "state_snapshot_us": 0.0746,
+  "ukf_step_ms": 0.03185,
+  "screen_mapper_predict_ms": 0.05074,
+  "spatial_6dof_compensation_ms": 0.00362,
+  "implicit_calibration_step_ms": 0.00544,
+  "neuromorphic_dvs_packet_ms": 0.02378,
+  "neuromorphic_events_per_sec": 21024569.0,
+  "bci_intent_fusion_ms": 0.00032,
+  "os_input_dispatch_ms": 0.01181,
+  "live_camera_stream_fps": 30.44,
+  "pure_inference_latency_ms": 5.2,
+  "pure_inference_capacity_fps": 192.4,
+  "mean_frame_latency_ms": 32.84,
+  "p50_frame_latency_ms": 32.22,
+  "p95_frame_latency_ms": 47.3,
+  "p99_frame_latency_ms": 50.48,
+  "frame_jitter_std_ms": 6.93,
+  "ram_usage_mb": 122.7,
+  "ram_delta_mb": 73.38,
+  "sla_compliance_pct": 100.0,
+  "performance_tier": "ENTERPRISE ULTRA (GRADE: A++)",
+  "overall_performance_score": 100.0,
+  "evaluation_table": [
+    {
+      "metric": "state_snapshot_us",
+      "measured": 0.0746,
+      "threshold": 10.0,
+      "description": "\u00b5s (< 10 \u00b5s lock-free SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "ukf_step_ms",
+      "measured": 0.03185,
+      "threshold": 0.5,
+      "description": "ms (< 0.50 ms predictive filter SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "screen_mapper_predict_ms",
+      "measured": 0.05074,
+      "threshold": 0.5,
+      "description": "ms (< 0.50 ms RLS mapping SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "spatial_6dof_compensation_ms",
+      "measured": 0.00362,
+      "threshold": 0.2,
+      "description": "ms (< 0.20 ms 6DOF parallax SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "implicit_calibration_step_ms",
+      "measured": 0.00544,
+      "threshold": 0.5,
+      "description": "ms (< 0.50 ms autonomous calibrator SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "neuromorphic_dvs_packet_ms",
+      "measured": 0.02378,
+      "threshold": 0.8,
+      "description": "ms (< 0.80 ms event HAL SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "bci_intent_fusion_ms",
+      "measured": 0.00032,
+      "threshold": 1.0,
+      "description": "ms (< 1.00 ms intent gating SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "os_input_dispatch_ms",
+      "measured": 0.01181,
+      "threshold": 1.0,
+      "description": "ms (< 1.00 ms SendInput SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "pure_inference_latency_ms",
+      "measured": 5.2,
+      "threshold": 25.0,
+      "description": "ms (< 25.0 ms algorithmic budget)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "live_camera_stream_fps",
+      "measured": 30.44,
+      "threshold": 28.0,
+      "description": "FPS (>= 28.0 FPS real-world webcam pacing SLA)",
+      "status": "PASS"
+    }
+  ]
+}
