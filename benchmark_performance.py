@@ -36,9 +36,12 @@ from implicit_calibrator import ImplicitGNNCalibrator, UIElementNode
 from neuromorphic_dvs import NeuromorphicDVSHAL, DVSEventRecord
 from bci_intent_fusion import HybridBCIIntentFusion
 from intent_predictor import MicroTransformerGazePredictor
+from smooth_scroller import SubPixelSmoothScroller
+from persistent_camera import PersistentCameraDaemon
+from work_limit_enforcer import WorkLimitEnforcer
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +95,8 @@ class FreeSightPerformanceProfiler:
             "bci_intent_fusion_ms": (1.00, "ms (< 1.00 ms intent gating SLA)"),
             "os_input_dispatch_ms": (1.00, "ms (< 1.00 ms SendInput SLA)"),
             "micro_transformer_predict_ms": (1.10, "ms (< 1.10 ms v7 intent forecast SLA)"),
+            "subpixel_smooth_scroll_ms": (0.05, "ms (< 0.05 ms v9 physics scroller SLA)"),
+            "work_limit_enforce_ms": (0.05, "ms (< 0.05 ms v9 resource guard SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (28.0, "FPS (>= 28.0 FPS real-world webcam pacing SLA)"),
         }
@@ -223,6 +228,28 @@ class FreeSightPerformanceProfiler:
         trans_ms = ((t1 - t0) / N) * 1000.0
         self.results["micro_transformer_predict_ms"] = round(trans_ms, 5)
         print(f"  [+] MicroTransformer.predict():       {trans_ms:8.5f} ms/infer (Target: < 1.10 ms)")
+
+        # 10. v9.0 Sub-Pixel Smooth Scroller Dispatch Latency
+        scroller = SubPixelSmoothScroller(friction=0.90, gain=45.0, deadzone=0.05)
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = scroller.process_ocular_displacement(0.20 + (i % 10) * 0.01)
+        t1 = time.perf_counter()
+        scroll_ms = ((t1 - t0) / N) * 1000.0
+        self.results["subpixel_smooth_scroll_ms"] = round(scroll_ms, 5)
+        print(f"  [+] SubPixelSmoothScroller:           {scroll_ms:8.5f} ms/op    (Target: < 0.05 ms)")
+
+        # 11. v9.0 Hard Work Limit & Resource Guard Latency
+        enforcer = WorkLimitEnforcer(max_memory_mb=12.5, target_fps=60.0)
+        N = 10000
+        t0 = time.perf_counter()
+        for _ in range(N):
+            _ = enforcer.check_resource_limits()
+        t1 = time.perf_counter()
+        enf_ms = ((t1 - t0) / N) * 1000.0
+        self.results["work_limit_enforce_ms"] = round(enf_ms, 5)
+        print(f"  [+] WorkLimitEnforcer.check():        {enf_ms:8.5f} ms/check (Target: < 0.05 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

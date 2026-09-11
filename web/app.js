@@ -41,6 +41,8 @@
   const statFps = document.getElementById('stat-fps');
   const statConf = document.getElementById('stat-conf');
   const statCb = document.getElementById('stat-cb');
+  const statScrollVel = document.getElementById('stat-scroll-vel');
+  const statWatchdog = document.getElementById('stat-watchdog');
 
   const earValue = document.getElementById('ear-value');
   const earBar = document.getElementById('ear-bar');
@@ -61,6 +63,7 @@
   const modeClickBtn = document.getElementById('mode-click-btn');
   const toggleOverlayBtn = document.getElementById('toggle-overlay-btn');
   const cameraReconnectBtn = document.getElementById('camera-reconnect-btn');
+  const cameraShutdownBtn = document.getElementById('camera-shutdown-btn');
   const clearLogBtn = document.getElementById('clear-log-btn');
 
   // --- Dwell & Tracking State ---
@@ -139,6 +142,12 @@
     if (statFps) statFps.textContent = `${state.fps?.toFixed(1) || '30.4'} FPS`;
     if (statConf) statConf.textContent = `${((state.intent_confidence || 0.94) * 100).toFixed(1)}%`;
     if (statCb) statCb.textContent = `${state.execution_provider || 'NPU'} ${state.circuit_breaker_state || 'CLOSED'}`;
+    if (statScrollVel) statScrollVel.textContent = `${state.subpixel_velocity !== undefined ? state.subpixel_velocity.toFixed(1) + ' px/s' : '0.0 px/s'}`;
+    if (statWatchdog) {
+      const isStopped = state.camera_watchdog_status === 'MANUAL_SHUTDOWN';
+      statWatchdog.textContent = isStopped ? 'STOPPED' : 'PERMANENT';
+      statWatchdog.className = isStopped ? 'stat-value text-red' : 'stat-value text-emerald';
+    }
 
     // 2. Biomarkers
     const ear = state.current_ear || 0.32;
@@ -292,6 +301,23 @@
     if (streamImg) {
       streamImg.src = `/video_feed?t=${Date.now()}`;
       appendLog('Webcam video stream connection refreshed.', 'text-gold');
+    }
+  });
+
+  // Manual Camera Shutdown (the ONLY trigger allowed to terminate camera daemon)
+  cameraShutdownBtn?.addEventListener('click', () => {
+    if (confirm('Manual Camera Shutdown Policy: Are you sure you want to stop the permanent camera daemon?')) {
+      fetch('/api/shutdown')
+        .then(r => r.json())
+        .then(() => {
+          playTone(400, 'sawtooth', 0.2);
+          appendLog('MANUAL CAMERA SHUTDOWN EXECUTED BY USER.', 'text-red');
+          if (statWatchdog) {
+            statWatchdog.textContent = 'STOPPED';
+            statWatchdog.className = 'stat-value text-red';
+          }
+        })
+        .catch(() => {});
     }
   });
 

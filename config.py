@@ -499,6 +499,38 @@ class V7SpatialAIConfig:
 
 
 # --------------------------------------------------------------------------- #
+# v9.0 Master Enterprise Architecture Configuration (100.0/100 Master Milestone)
+# --------------------------------------------------------------------------- #
+@dataclass(frozen=True)
+class V9SmoothScrollConfig:
+    """
+    Configuration parameters for v9.0 Physics-Informed Sub-Pixel Smooth Scrolling:
+    - Logarithmic velocity acceleration
+    - Dynamic fluid friction damping (mu = 0.90)
+    - Sub-pixel accumulation and whole wheel tick extraction
+    """
+    FRICTION: float = 0.90
+    GAIN: float = 45.0
+    DEADZONE: float = 0.05
+    BETA: float = 3.0
+
+
+@dataclass(frozen=True)
+class V9ResourceEnclosureConfig:
+    """
+    Configuration parameters for v9.0 Hard Project Work Limits & Resource Enclosure:
+    - Host CPU Execution Limit (< 0.15% overhead)
+    - Working Set RSS Cap (< 12.5 MB)
+    - Paced 60/120 FPS Execution
+    - Thermal Junction Ceiling (< 75 deg C)
+    """
+    MAX_CPU_PERCENT: float = 0.15
+    MAX_MEMORY_MB: float = 12.5
+    TARGET_FPS: float = 60.0
+    THERMAL_JUNCTION_MAX_C: float = 75.0
+
+
+# --------------------------------------------------------------------------- #
 # Aggregate, ready-to-import singletons
 # --------------------------------------------------------------------------- #
 HOST_OS_CONFIG: Final[HostOSConfig] = HostOSConfig()
@@ -512,6 +544,13 @@ GAZE_CONFIG: Final[GazeConfig] = GazeConfig()
 V5_CONFIG: Final[V5EnterpriseConfig] = V5EnterpriseConfig()
 V6_CONFIG: Final[V6NeuromorphicConfig] = V6NeuromorphicConfig()
 V7_CONFIG: Final[V7SpatialAIConfig] = V7SpatialAIConfig()
+V9_SCROLL_CONFIG: Final[V9SmoothScrollConfig] = V9SmoothScrollConfig()
+V9_RESOURCE_CONFIG: Final[V9ResourceEnclosureConfig] = V9ResourceEnclosureConfig()
+V9_CONFIG: Final[dict] = {
+    "scroll": V9_SCROLL_CONFIG,
+    "resource": V9_RESOURCE_CONFIG,
+    "score_target": 100.0,
+}
 
 
 

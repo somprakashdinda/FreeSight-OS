@@ -24,6 +24,7 @@ import numpy as np
 
 from config import HOST_OS_CONFIG, CV_CONFIG
 from screen_geometry import initialize_dpi_awareness
+from smooth_scroller import SubPixelSmoothScroller
 
 # Ensure Per-Monitor V2 DPI awareness is initialized
 initialize_dpi_awareness()
@@ -359,6 +360,9 @@ class OSController:
         except Exception:
             self._kernel_driver = None
 
+        # v9.0 Sub-Pixel Smooth Scrolling Engine
+        self._smooth_scroller = SubPixelSmoothScroller(friction=0.90, gain=45.0, deadzone=0.05)
+
         # Prevent screen timeout / sleep while FreeSight-OS is active
         keep_display_active(True)
         configure_system_power_screen_awake(True)
@@ -431,6 +435,16 @@ class OSController:
                 return f"OSController: swipe failed ({exc})"
 
         return f"OSController: direction {dir_key} dispatched"
+
+    def scroll_smoothly(self, normalized_offset: float) -> int:
+        """
+        Calculates sub-pixel scroll velocity with logarithmic acceleration and friction damping,
+        dispatching native Win32 wheel events when integer ticks accumulate.
+        """
+        ticks = self._smooth_scroller.process_ocular_displacement(normalized_offset)
+        if ticks != 0 and self._native:
+            self._native.scroll(ticks * WHEEL_DELTA)
+        return ticks
 
     def move_cursor(self, x: int, y: int) -> None:
         """Move the OS mouse cursor with virtual-desktop multi-monitor awareness."""
