@@ -1759,4 +1759,112 @@ body {
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
 }
 
+/* ==========================================================================
+   v17.0 Deep Body Kinematics & Postural Click Fusion Styles
+   ========================================================================== */
+.skeletal-mesh-card,
+.gestural-click-card,
+.posture-sentinel-card {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  backdrop-filter: blur(12px);
+}
+
+.skeletal-header,
+.gestural-header,
+.posture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.skeletal-title,
+.gestural-title,
+.posture-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeletal-badge {
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--color-cyan);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.gestural-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-gold);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.posture-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.skeletal-grid,
+.gestural-grid,
+.posture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.skeletal-box,
+.gestural-box,
+.posture-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletal-box-header,
+.gestural-box-header,
+.posture-box-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.skeletal-val {
+  font-weight: 700;
+  color: var(--color-cyan);
+}
+
+.gestural-val {
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.posture-val {
+  font-weight: 700;
+  color: var(--color-emerald);
+}
+
+
 

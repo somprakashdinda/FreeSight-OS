@@ -51,9 +51,14 @@ from crypto_kernel_watchdog import CryptoKernelWatchdog
 from retinal_saccade import RetinalMicroSaccadeTracker
 from eeg_intent_decoder import OmnipresentIntentDecoder
 from enclave_watchdog import HardwareEnclaveWatchdog
+from skeletal_mesh import SkeletalMeshTracker
+from gestural_click_engine import DeepBodyKinematicEngine
+from spatial_kinetic_scroller import SpatialKineticScroller
+from posture_sentinel import ErgonomicPostureSentinel
+from enclave_watchdog_v2 import HardwareEnclaveWatchdogV2
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG, V17_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +124,10 @@ class FreeSightPerformanceProfiler:
             "quantum_smooth_scroll_ms": (0.01, "ms (< 0.01 ms v15 quantum scroller SLA)"),
             "retinal_saccade_tracker_ms": (0.005, "ms (< 0.005 ms v16 micro-saccade SLA)"),
             "eeg_intent_decoder_ms": (0.005, "ms (< 0.005 ms v16 qEEG intent SLA)"),
+            "skeletal_mesh_tracker_ms": (0.015, "ms (< 0.015 ms v17 65-keypoint SLA)"),
+            "gestural_click_engine_ms": (0.005, "ms (< 0.005 ms v17 postural click SLA)"),
+            "spatial_kinetic_scroller_ms": (0.005, "ms (< 0.005 ms v17 3D lean scroll SLA)"),
+            "posture_sentinel_ms": (0.005, "ms (< 0.005 ms v17 posture sentinel SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -383,6 +392,50 @@ class FreeSightPerformanceProfiler:
         eeg_ms = ((t1 - t0) / N) * 1000.0
         self.results["eeg_intent_decoder_ms"] = round(eeg_ms, 6)
         print(f"  [+] OmnipresentIntentDecoder:         {eeg_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 22. v17.0 65-Keypoint 3D Skeletal Mesh Tracking Latency
+        skeletal_tracker = SkeletalMeshTracker()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = skeletal_tracker.track_skeletal_mesh(2.0 + (i % 5), 1.0, 0.0, 2.0, 1.0, 0.0, 0.01, 0.0)
+        t1 = time.perf_counter()
+        skel_ms = ((t1 - t0) / N) * 1000.0
+        self.results["skeletal_mesh_tracker_ms"] = round(skel_ms, 6)
+        print(f"  [+] SkeletalMeshTracker:              {skel_ms:8.5f} ms/op    (Target: < 0.015 ms)")
+
+        # 23. v17.0 Postural Click & Shoulder Gesture Fusion Latency
+        gestural_click = DeepBodyKinematicEngine()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = gestural_click.process_kinematic_frame(1.0 + (i % 5), 1.0, 0.0, -0.05, 0.0, (960.0, 540.0))
+        t1 = time.perf_counter()
+        gest_ms = ((t1 - t0) / N) * 1000.0
+        self.results["gestural_click_engine_ms"] = round(gest_ms, 6)
+        print(f"  [+] DeepBodyKinematicEngine:          {gest_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 24. v17.0 Multi-Axis Torso Lean Kinetic Scrolling Latency
+        spatial_scroller = SpatialKineticScroller()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = spatial_scroller.process_spatial_lean(2.0 + (i % 5), 1.0, 0.5)
+        t1 = time.perf_counter()
+        spat_ms = ((t1 - t0) / N) * 1000.0
+        self.results["spatial_kinetic_scroller_ms"] = round(spat_ms, 6)
+        print(f"  [+] SpatialKineticScroller:           {spat_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 25. v17.0 Ergonomic Posture-Corrective Sentinel Latency
+        posture_sentinel = ErgonomicPostureSentinel()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = posture_sentinel.evaluate_posture(5.0 + (i % 5), 4.0, 175.0)
+        t1 = time.perf_counter()
+        post_ms = ((t1 - t0) / N) * 1000.0
+        self.results["posture_sentinel_ms"] = round(post_ms, 6)
+        print(f"  [+] ErgonomicPostureSentinel:         {post_ms:8.5f} ms/op    (Target: < 0.005 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

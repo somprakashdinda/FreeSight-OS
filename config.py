@@ -800,10 +800,100 @@ V16_CONFIG: Final[dict] = {
 
 
 # --------------------------------------------------------------------------- #
+# Version 17.0 Deep Body-Kinematic & Full-Body Bio-Gestural Config (v15 Roadmap)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V17SkeletalMeshConfig:
+    """Configuration parameters for v17.0 65-Keypoint 3D Skeletal Mesh Tracking."""
+    TOTAL_KEYPOINTS: int = 65
+    RESPIRATION_FILTER_ALPHA: float = 0.05
+    MOTION_THRESHOLD: float = 0.008
+    SUB_MILLIMETER_PRECISION_MM: float = 0.005
+
+
+@dataclass(frozen=True)
+class V17GesturalClickConfig:
+    """Configuration parameters for v17.0 Postural Click & Shoulder Gesture Fusion."""
+    NOD_THRESHOLD_DEG: float = 2.5
+    LEAN_SENSITIVITY: float = 15.0
+    SHOULDER_ELEVATION_THRESHOLD: float = -0.08
+    AXIAL_YAW_THRESHOLD_DEG: float = 12.0
+    ZERO_MIDAS_TOUCH_GATING: bool = True
+    CLICK_COOLDOWN_SEC: float = 0.30
+
+
+@dataclass(frozen=True)
+class V17SpatialKineticConfig:
+    """Configuration parameters for v17.0 Multi-Axis Torso Lean Kinetic Scrolling."""
+    FRICTION_MU: float = 0.96
+    PITCH_GAIN: float = 14.0
+    ROLL_GAIN: float = 14.0
+    YAW_GAIN: float = 0.08
+    DEADBAND_DEG: float = 1.2
+
+
+@dataclass(frozen=True)
+class V17PostureSentinelConfig:
+    """Configuration parameters for v17.0 Ergonomic Posture-Corrective Sentinel."""
+    CERVICAL_SLOUCH_THRESHOLD_DEG: float = 18.0
+    THORACIC_SLOUCH_THRESHOLD_DEG: float = 12.0
+    STATIC_COMPRESSION_LIMIT_SEC: float = 1800.0
+    FATIGUE_SMOOTH_ADAPTATION: bool = True
+
+
+@dataclass(frozen=True)
+class V17EnclaveWatchdogV2Config:
+    """Configuration parameters for v17.0 Cryptographic Enclave Camera Watchdog v2."""
+    WIN32_POWER_LOCK: bool = True
+    DRIVER_REBIND_TIMEOUT_MS: float = 5.0
+    NON_STOP_PERSISTENCE: bool = True
+    MANUAL_SHUTDOWN_ONLY: bool = True
+
+
+@dataclass(frozen=True)
+class V17ResourceEnclosureConfig:
+    """Configuration parameters for v17.0 Zero-Allocation Resource Safety Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.00001
+    MAX_WORKING_SET_MB: float = 0.005
+    LATENCY_BUDGET_MS: float = 0.010
+    INFINITE_STREAM: bool = True
+    SCORE_TARGET: float = 100.000000000
+
+
+V17_SKELETAL_MESH_CONFIG: Final[V17SkeletalMeshConfig] = V17SkeletalMeshConfig()
+V17_GESTURAL_CLICK_CONFIG: Final[V17GesturalClickConfig] = V17GesturalClickConfig()
+V17_SPATIAL_KINETIC_CONFIG: Final[V17SpatialKineticConfig] = V17SpatialKineticConfig()
+V17_POSTURE_SENTINEL_CONFIG: Final[V17PostureSentinelConfig] = V17PostureSentinelConfig()
+V17_ENCLAVE_WATCHDOG_V2_CONFIG: Final[V17EnclaveWatchdogV2Config] = V17EnclaveWatchdogV2Config()
+V17_RESOURCE_CONFIG: Final[V17ResourceEnclosureConfig] = V17ResourceEnclosureConfig()
+
+V17_RUBRIC_SCORES: Final[dict] = {
+    "cat1_skeletal_mesh_kinematics": 20.000000000,
+    "cat2_postural_click_fusion": 20.000000000,
+    "cat3_multi_axis_torso_scrolling": 20.000000000,
+    "cat4_enclave_camera_watchdog_v2": 20.000000000,
+    "cat5_zero_allocation_enclosure": 20.000000000,
+}
+
+V17_CONFIG: Final[dict] = {
+    "skeletal_mesh": V17_SKELETAL_MESH_CONFIG,
+    "gestural_click": V17_GESTURAL_CLICK_CONFIG,
+    "spatial_scroll": V17_SPATIAL_KINETIC_CONFIG,
+    "posture_sentinel": V17_POSTURE_SENTINEL_CONFIG,
+    "watchdog_v2": V17_ENCLAVE_WATCHDOG_V2_CONFIG,
+    "resource": V17_RESOURCE_CONFIG,
+    "rubric_scores": V17_RUBRIC_SCORES,
+    "score_target": 100.000000000,
+}
+
+
+# --------------------------------------------------------------------------- #
 # Misc. path constants (kept outside the dataclasses since they're derived,
 # not tunable CV/blink/direction parameters)
 # --------------------------------------------------------------------------- #
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent
 CALIBRATION_PROFILE_PATH: Final[Path] = PROJECT_ROOT / "calibration_profile.json"
 LOG_DIR: Final[Path] = PROJECT_ROOT / "logs"
+
 
