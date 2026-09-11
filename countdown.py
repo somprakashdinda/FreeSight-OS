@@ -42,13 +42,13 @@ def format_time(seconds: int) -> str:
 
 def render_bar(fraction: float, length: int = 36) -> str:
     filled = int(round(length * fraction))
-    bar = "█" * filled + "░" * (length - filled)
+    bar = "=" * filled + "-" * (length - filled)
     return bar
 
 def run_countdown(total_seconds: int, label: str = "FreeSight-OS Countdown"):
     print()
     print("=" * 64)
-    print(f"  ⏳ {label.upper()}")
+    print(f"  [*] {label.upper()}")
     print(f"  Target Duration: {format_time(total_seconds)} ({total_seconds}s)")
     print("=" * 64)
     print()
@@ -73,7 +73,7 @@ def run_countdown(total_seconds: int, label: str = "FreeSight-OS Countdown"):
 
         print("\n")
         print("=" * 64)
-        print(f"  🎉 TIME'S UP! - {label}")
+        print(f"  [+] TIME'S UP! - {label}")
         print("=" * 64)
         print()
 
