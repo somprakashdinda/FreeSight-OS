@@ -121,4 +121,6 @@ desktop.ini
 tree*.txt
 .StartInfo*
 push_repo.ps1
+push.bat
+
 
