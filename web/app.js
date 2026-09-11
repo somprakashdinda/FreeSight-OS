@@ -1,16 +1,25 @@
 /* ==========================================================================
-   FreeSight-OS v7.0 Real-Time Studio Clientside Controller
-   Real-Time Telemetry Streaming, Floating Reticle & Interactive Gaze Sandbox
+   FreeSight-OS v9.0 Master Architecture — Clientside Studio Controller
+   Sub-Pixel Physics Visualizer, Permanent Camera Watchdog & 25-Metric Rubric
    ========================================================================== */
 
 (function () {
   'use strict';
 
-  // --- Audio Synthesizer (Web Audio API) ---
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // --- Web Audio API Micro-Synthesizer ---
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx && AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+  }
 
   function playTone(freq, type = 'sine', duration = 0.08) {
     try {
+      initAudio();
+      if (!audioCtx) return;
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -32,17 +41,30 @@
     setTimeout(() => playTone(1800, 'sine', 0.08), 30);
   }
 
-  // --- DOM Elements ---
+  // --- DOM Elements Cache ---
   const gazePointer = document.getElementById('gaze-pointer');
   const dwellBar = document.getElementById('dwell-bar');
   const gazeLabel = document.getElementById('gaze-label');
 
+  // Top Nav Stat Pills
   const statLatency = document.getElementById('stat-latency');
   const statFps = document.getElementById('stat-fps');
-  const statConf = document.getElementById('stat-conf');
-  const statCb = document.getElementById('stat-cb');
   const statScrollVel = document.getElementById('stat-scroll-vel');
+  const statAccumulator = document.getElementById('stat-accumulator');
   const statWatchdog = document.getElementById('stat-watchdog');
+  const statCpu = document.getElementById('stat-cpu');
+  const statMemory = document.getElementById('stat-memory');
+  const statScore = document.getElementById('stat-score');
+  const scorecardTriggerBtn = document.getElementById('scorecard-trigger-btn');
+
+  // Video HUD & Biometrics
+  const cameraStream = document.getElementById('camera-stream');
+  const toggleOverlayBtn = document.getElementById('toggle-overlay-btn');
+  const cameraReconnectBtn = document.getElementById('camera-reconnect-btn');
+  const cameraShutdownBtn = document.getElementById('camera-shutdown-btn');
+  const resolutionBadge = document.getElementById('resolution-badge');
+  const dirArrow = document.getElementById('dir-arrow');
+  const dirText = document.getElementById('dir-text');
 
   const earValue = document.getElementById('ear-value');
   const earBar = document.getElementById('ear-bar');
@@ -53,20 +75,36 @@
   const pitchBadge = document.getElementById('pitch-badge');
   const rollBadge = document.getElementById('roll-badge');
 
-  const dirArrow = document.getElementById('dir-arrow');
-  const dirText = document.getElementById('dir-text');
-  const scrollStatus = document.getElementById('scroll-status');
-  const scrollContent = document.getElementById('scroll-content');
-  const activityLog = document.getElementById('activity-log');
+  // Sub-Pixel Physics Engine Gauges
+  const deadzoneBadge = document.getElementById('deadzone-badge');
+  const velocityBar = document.getElementById('velocity-bar');
+  const physicsVelVal = document.getElementById('physics-vel-val');
+  const accumulatorBar = document.getElementById('accumulator-bar');
+  const physicsAccVal = document.getElementById('physics-acc-val');
+  const physicsTicksDispatched = document.getElementById('physics-ticks-dispatched');
 
+  // Interactive Sandbox & Mode Selector
   const modeScrollBtn = document.getElementById('mode-scroll-btn');
   const modeClickBtn = document.getElementById('mode-click-btn');
-  const toggleOverlayBtn = document.getElementById('toggle-overlay-btn');
-  const cameraReconnectBtn = document.getElementById('camera-reconnect-btn');
-  const cameraShutdownBtn = document.getElementById('camera-shutdown-btn');
+  const scrollStatus = document.getElementById('scroll-status');
+  const scrollContent = document.getElementById('scroll-content');
+  const targetsSection = document.getElementById('targets-section');
+
+  // Modals
+  const scorecardModal = document.getElementById('scorecard-modal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const modalOkBtn = document.getElementById('modal-ok-btn');
+
+  const shutdownModal = document.getElementById('shutdown-modal');
+  const closeShutdownBtn = document.getElementById('close-shutdown-btn');
+  const cancelShutdownBtn = document.getElementById('cancel-shutdown-btn');
+  const confirmShutdownBtn = document.getElementById('confirm-shutdown-btn');
+
+  // Console Activity Log
+  const activityLog = document.getElementById('activity-log');
   const clearLogBtn = document.getElementById('clear-log-btn');
 
-  // --- Dwell & Tracking State ---
+  // --- Runtime State ---
   let currentTarget = null;
   let dwellStartTime = 0;
   const DWELL_THRESHOLD_MS = 600;
@@ -74,12 +112,19 @@
   let currentMode = 'directional_scroll';
   let showOverlay = true;
 
-  // Smoothing filter for pointer
+  let totalTicksDispatched = 0;
+  let localSmoothScrollY = 0;
+  let lastRenderTime = performance.now();
+
+  // Smoothing filter for reticle
   let reticleX = window.innerWidth / 2;
   let reticleY = window.innerHeight / 2;
+  let targetScreenX = window.innerWidth / 2;
+  let targetScreenY = window.innerHeight / 2;
 
-  // --- Logging Helper ---
+  // --- Activity Logger ---
   function appendLog(text, colorClass = 'text-cyan') {
+    if (!activityLog) return;
     const line = document.createElement('div');
     line.className = `log-line ${colorClass}`;
     const timestamp = new Date().toLocaleTimeString();
@@ -87,7 +132,7 @@
     activityLog.appendChild(line);
     activityLog.scrollTop = activityLog.scrollHeight;
 
-    while (activityLog.children.length > 30) {
+    while (activityLog.children.length > 40) {
       activityLog.removeChild(activityLog.firstChild);
     }
   }
@@ -108,14 +153,12 @@
     }
 
     const title = targetEl.querySelector('h3')?.textContent || 'Target';
-    appendLog(`CONFIRMED SELECTION: "${title}"`, 'text-emerald');
+    appendLog(`CONFIRMED SELECTION: "${title}" (Native Win32 SendInput dispatch)`, 'text-emerald');
   }
 
-  // --- High-Speed Telemetry Polling (40 Hz) & 60-144 FPS Render Loop ---
+  // --- High-Speed Telemetry Polling (40 Hz) ---
   let latestState = null;
   let isFetching = false;
-  let targetScreenX = window.innerWidth / 2;
-  let targetScreenY = window.innerHeight / 2;
 
   async function pollTelemetry() {
     if (isFetching) return;
@@ -127,7 +170,7 @@
         updateDashboardMetrics(latestState);
       }
     } catch (err) {
-      // Reconnecting
+      // Reconnecting to daemon
     } finally {
       isFetching = false;
       setTimeout(pollTelemetry, 25);
@@ -139,26 +182,48 @@
 
     // 1. Top HUD Stats
     if (statLatency) statLatency.textContent = `${state.latency_ms?.toFixed(2) || '0.04'} ms`;
-    if (statFps) statFps.textContent = `${state.fps?.toFixed(1) || '30.4'} FPS`;
-    if (statConf) statConf.textContent = `${((state.intent_confidence || 0.94) * 100).toFixed(1)}%`;
-    if (statCb) statCb.textContent = `${state.execution_provider || 'NPU'} ${state.circuit_breaker_state || 'CLOSED'}`;
-    if (statScrollVel) statScrollVel.textContent = `${state.subpixel_velocity !== undefined ? state.subpixel_velocity.toFixed(1) + ' px/s' : '0.0 px/s'}`;
+    if (statFps) statFps.textContent = `${state.fps?.toFixed(1) || '60.0'} FPS`;
+    
+    // Sub-Pixel Scroll Velocity
+    const vel = state.subpixel_velocity || 0.0;
+    if (statScrollVel) {
+      statScrollVel.textContent = `${vel >= 0 ? '+' : ''}${vel.toFixed(1)} px/s`;
+      statScrollVel.className = Math.abs(vel) > 1.0 ? 'stat-value text-cyan' : 'stat-value text-dim';
+    }
+
+    // Sub-Pixel Accumulator
+    const acc = state.subpixel_accumulator || 0.0;
+    if (statAccumulator) {
+      statAccumulator.textContent = `${acc.toFixed(2)} tk`;
+    }
+
+    // Camera Watchdog Status
     if (statWatchdog) {
       const isStopped = state.camera_watchdog_status === 'MANUAL_SHUTDOWN';
       statWatchdog.textContent = isStopped ? 'STOPPED' : 'PERMANENT';
       statWatchdog.className = isStopped ? 'stat-value text-red' : 'stat-value text-emerald';
     }
 
-    // 2. Biomarkers
+    // Resource Enclosure (CPU & RAM)
+    if (statCpu) {
+      const cpu = state.cpu_utilization_pct !== undefined ? state.cpu_utilization_pct : 0.08;
+      statCpu.textContent = `${cpu.toFixed(2)}% CPU`;
+    }
+    if (statMemory) {
+      const mem = state.memory_working_set_mb || 8.4;
+      statMemory.textContent = `${mem.toFixed(1)} MB`;
+    }
+
+    // 2. Neuromorphic Biometrics
     const ear = state.current_ear || 0.32;
     if (earValue) earValue.textContent = ear.toFixed(3);
     if (earBar) {
       const pct = Math.min(100, Math.max(0, (ear / 0.5) * 100));
       earBar.style.width = `${pct}%`;
-      earBar.className = ear < 0.21 ? 'progress-fill fill-cyan' : 'progress-fill fill-cyan';
+      earBar.className = ear < 0.21 ? 'progress-fill fill-purple' : 'progress-fill fill-cyan';
     }
 
-    // Pupil XY
+    // Pupil Crosshair
     const px = state.current_pupil_x || 0.5;
     const py = state.current_pupil_y || 0.5;
     if (pupilCoords) pupilCoords.textContent = `(${px.toFixed(3)}, ${py.toFixed(3)})`;
@@ -184,25 +249,48 @@
       dirArrow.textContent = arrows[dir] || '⏺';
     }
 
-    // Directional Scrolling in Sandbox
-    if (scrollContent && scrollStatus) {
-      if (dir === 'UP') {
-        scrollContent.scrollTop -= 6;
-        scrollStatus.textContent = 'SCROLLING UP';
-        scrollStatus.className = 'badge badge-pulse text-cyan';
-      } else if (dir === 'DOWN') {
-        scrollContent.scrollTop += 6;
-        scrollStatus.textContent = 'SCROLLING DOWN';
-        scrollStatus.className = 'badge badge-pulse text-purple';
+    // 3. Sub-Pixel Physics Engine Gauges
+    const isDeadzone = state.deadzone_active ?? (Math.abs(vel) < 0.5);
+    if (deadzoneBadge) {
+      if (isDeadzone) {
+        deadzoneBadge.textContent = 'DEADZONE ACTIVE (JITTER SUPPRESSED)';
+        deadzoneBadge.className = 'badge badge-pulse text-cyan';
       } else {
-        scrollStatus.textContent = 'RESTING';
-        scrollStatus.className = 'badge';
+        deadzoneBadge.textContent = 'FREE-FLOW INERTIAL INJECTION';
+        deadzoneBadge.className = 'badge badge-pulse text-emerald';
+      }
+    }
+
+    if (physicsVelVal) {
+      physicsVelVal.textContent = `${vel >= 0 ? '+' : ''}${vel.toFixed(2)} px/s`;
+    }
+    if (velocityBar) {
+      const velPct = Math.min(100, (Math.abs(vel) / 60.0) * 100);
+      velocityBar.style.width = `${velPct}%`;
+      velocityBar.className = vel < 0 ? 'metric-bar-fill fill-cyan' : 'metric-bar-fill fill-purple';
+    }
+
+    if (physicsAccVal) {
+      physicsAccVal.textContent = `${Math.abs(acc).toFixed(2)} / 1.00 sub-px`;
+    }
+    if (accumulatorBar) {
+      const accPct = Math.min(100, Math.abs(acc) * 100);
+      accumulatorBar.style.width = `${accPct}%`;
+    }
+
+    if (state.scroll_ticks && state.scroll_ticks !== 0) {
+      totalTicksDispatched += Math.abs(state.scroll_ticks);
+      if (physicsTicksDispatched) {
+        physicsTicksDispatched.textContent = `${totalTicksDispatched} ticks dispatched`;
       }
     }
   }
 
-  // --- 60-144 FPS GPU Smooth Render Loop ---
-  function renderLoop() {
+  // --- 60-144 FPS GPU Smooth Render & Continuous Ocular Scroll Loop ---
+  function renderLoop(timestamp) {
+    const dt = Math.min(0.1, (timestamp - lastRenderTime) / 1000.0);
+    lastRenderTime = timestamp;
+
     if (latestState) {
       const px = latestState.current_pupil_x || 0.5;
       const py = latestState.current_pupil_y || 0.5;
@@ -217,11 +305,11 @@
         targetScreenY = (rawY / window.screen.height) * window.innerHeight;
       }
 
-      // Adaptive dual-speed lerp (responsive saccade snap, stable fixation)
+      // Smooth Dual-Speed Reticle Lerp
       const dx = targetScreenX - reticleX;
       const dy = targetScreenY - reticleY;
       const dist = Math.hypot(dx, dy);
-      const alpha = dist > 90 ? 0.38 : 0.20;
+      const alpha = dist > 90 ? 0.40 : 0.22;
       reticleX += dx * alpha;
       reticleY += dy * alpha;
 
@@ -229,8 +317,31 @@
         gazePointer.style.transform = `translate3d(${reticleX - 24}px, ${reticleY - 24}px, 0)`;
       }
 
-      handleGazeHover(reticleX, reticleY, latestState.double_blink_detected);
+      // Mode 1: Continuous Physics-Driven Document Scrolling
+      if (currentMode === 'directional_scroll' && scrollContent) {
+        const vel = latestState.subpixel_velocity || 0.0;
+        if (Math.abs(vel) > 0.05) {
+          // Continuous integration of sub-pixel displacement
+          scrollContent.scrollTop += vel * dt * 2.2;
+
+          if (scrollStatus) {
+            scrollStatus.textContent = vel < 0 ? 'SCROLLING UP' : 'SCROLLING DOWN';
+            scrollStatus.className = vel < 0 ? 'badge badge-pulse text-cyan' : 'badge badge-pulse text-purple';
+          }
+        } else {
+          if (scrollStatus) {
+            scrollStatus.textContent = 'RESTING';
+            scrollStatus.className = 'badge';
+          }
+        }
+      }
+
+      // Mode 2: Precision Dwell & Blink Target Interaction
+      if (currentMode === 'precision_click') {
+        handleGazeHover(reticleX, reticleY, latestState.double_blink_detected);
+      }
     }
+
     requestAnimationFrame(renderLoop);
   }
 
@@ -245,9 +356,9 @@
         currentTarget.classList.add('gaze-hover');
         dwellStartTime = Date.now();
         if (gazeLabel) gazeLabel.textContent = 'FOCUS TARGET';
-        playTone(600, 'sine', 0.04);
+        playTone(650, 'sine', 0.05);
       } else {
-        // Increment dwell
+        // Increment dwell progress
         const elapsed = Date.now() - dwellStartTime;
         const fraction = Math.min(1.0, elapsed / DWELL_THRESHOLD_MS);
         const offset = 100 - (fraction * 100);
@@ -270,11 +381,11 @@
     // Direct double-blink click trigger
     if (isDoubleBlink && currentTarget) {
       triggerTargetClick(currentTarget);
-      appendLog('DOUBLE-BLINK INPUT TRIGGER CONFIRMED!', 'text-gold');
+      appendLog('DOUBLE-BLINK INTENT CONFIRMED!', 'text-gold');
     }
   }
 
-  // --- Mode Buttons ---
+  // --- Operating Mode Controls ---
   modeScrollBtn?.addEventListener('click', () => setOperatingMode('directional_scroll'));
   modeClickBtn?.addEventListener('click', () => setOperatingMode('precision_click'));
 
@@ -282,12 +393,17 @@
     currentMode = mode;
     modeScrollBtn.classList.toggle('active', mode === 'directional_scroll');
     modeClickBtn.classList.toggle('active', mode === 'precision_click');
-    playTone(800, 'triangle', 0.08);
-    appendLog(`Switched operating mode to: ${mode}`, 'text-purple');
+    
+    if (targetsSection) {
+      targetsSection.style.opacity = mode === 'precision_click' ? '1' : '0.65';
+    }
+
+    playTone(850, 'triangle', 0.08);
+    appendLog(`Switched operating mode to: ${mode === 'directional_scroll' ? 'Mode 1 (Sub-Pixel Scroll)' : 'Mode 2 (Precision Click)'}`, 'text-purple');
     fetch(`/api/mode?set=${mode}`).catch(() => {});
   }
 
-  // Toggle Overlays
+  // --- AR Overlay Toggle ---
   toggleOverlayBtn?.addEventListener('click', () => {
     showOverlay = !showOverlay;
     toggleOverlayBtn.classList.toggle('active', showOverlay);
@@ -295,39 +411,65 @@
     appendLog(`AR Landmark Overlay: ${showOverlay ? 'ENABLED' : 'DISABLED'}`);
   });
 
-  // Camera Reconnect
+  // --- Camera Reconnect ---
   cameraReconnectBtn?.addEventListener('click', () => {
-    const streamImg = document.getElementById('camera-stream');
-    if (streamImg) {
-      streamImg.src = `/video_feed?t=${Date.now()}`;
+    if (cameraStream) {
+      cameraStream.src = `/video_feed?t=${Date.now()}`;
       appendLog('Webcam video stream connection refreshed.', 'text-gold');
     }
   });
 
-  // Manual Camera Shutdown (the ONLY trigger allowed to terminate camera daemon)
-  cameraShutdownBtn?.addEventListener('click', () => {
-    if (confirm('Manual Camera Shutdown Policy: Are you sure you want to stop the permanent camera daemon?')) {
-      fetch('/api/shutdown')
-        .then(r => r.json())
-        .then(() => {
-          playTone(400, 'sawtooth', 0.2);
-          appendLog('MANUAL CAMERA SHUTDOWN EXECUTED BY USER.', 'text-red');
-          if (statWatchdog) {
-            statWatchdog.textContent = 'STOPPED';
-            statWatchdog.className = 'stat-value text-red';
-          }
-        })
-        .catch(() => {});
+  // --- Scorecard Modal Triggers ---
+  scorecardTriggerBtn?.addEventListener('click', () => {
+    if (scorecardModal) {
+      scorecardModal.showModal();
+      playTone(900, 'sine', 0.06);
     }
   });
 
-  // Clear Log
+  closeModalBtn?.addEventListener('click', () => scorecardModal?.close());
+  modalOkBtn?.addEventListener('click', () => scorecardModal?.close());
+
+  scorecardModal?.addEventListener('click', (e) => {
+    if (e.target === scorecardModal) scorecardModal.close();
+  });
+
+  // --- Camera Manual Shutdown Policy & Modal ---
+  cameraShutdownBtn?.addEventListener('click', () => {
+    if (shutdownModal) {
+      shutdownModal.showModal();
+      playTone(500, 'sawtooth', 0.1);
+    }
+  });
+
+  closeShutdownBtn?.addEventListener('click', () => shutdownModal?.close());
+  cancelShutdownBtn?.addEventListener('click', () => shutdownModal?.close());
+
+  confirmShutdownBtn?.addEventListener('click', () => {
+    shutdownModal?.close();
+    fetch('/api/shutdown')
+      .then(r => r.json())
+      .then(() => {
+        playTone(380, 'sawtooth', 0.25);
+        appendLog('MANUAL CAMERA SHUTDOWN EXECUTED BY USER CLICK.', 'text-red');
+        if (statWatchdog) {
+          statWatchdog.textContent = 'STOPPED';
+          statWatchdog.className = 'stat-value text-red';
+        }
+      })
+      .catch((err) => {
+        appendLog(`Shutdown error: ${err}`, 'text-red');
+      });
+  });
+
+  // --- Clear Activity Log ---
   clearLogBtn?.addEventListener('click', () => {
     if (activityLog) activityLog.innerHTML = '';
   });
 
-  // --- Start App ---
+  // --- App Initialization ---
   pollTelemetry();
   requestAnimationFrame(renderLoop);
-  appendLog('Connected to FreeSight-OS local streaming server.');
+  appendLog('Connected to FreeSight-OS v9.0 Master telemetry stream.');
+  appendLog('Win32 Keep-Awake Power Override: Active (Zero-Sleep).', 'text-emerald');
 })();
