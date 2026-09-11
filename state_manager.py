@@ -113,6 +113,10 @@ class StateSnapshot:
     circuit_breaker_state: str = "CLOSED"
     implicit_calibration_rmse: float = 0.0
     kernel_driver_active: bool = False
+    # v7.0 Micro-Transformer Spatial AI Intent Telemetry
+    predicted_saccade_x: float = 0.0
+    predicted_saccade_y: float = 0.0
+    intent_confidence: float = 0.0
 
 
 
@@ -196,6 +200,11 @@ class SystemState:
         self._implicit_calibration_rmse: float = 0.0
         self._kernel_driver_active: bool = False
 
+        # v7.0 Micro-Transformer Spatial AI Intent Telemetry
+        self._predicted_saccade_x: float = 0.0
+        self._predicted_saccade_y: float = 0.0
+        self._intent_confidence: float = 0.0
+
         # Lock-free double-buffered atomic pointer swap reference
         self._snapshot: StateSnapshot = self._build_snapshot()
 
@@ -230,6 +239,9 @@ class SystemState:
             circuit_breaker_state=self._circuit_breaker_state,
             implicit_calibration_rmse=self._implicit_calibration_rmse,
             kernel_driver_active=self._kernel_driver_active,
+            predicted_saccade_x=self._predicted_saccade_x,
+            predicted_saccade_y=self._predicted_saccade_y,
+            intent_confidence=self._intent_confidence,
         )
 
 
@@ -438,6 +450,21 @@ class SystemState:
                 self._kernel_driver_active = bool(kernel_driver_active)
             self._publish_snapshot()
 
+    def set_v7_intent_prediction(
+        self, pred_x: float, pred_y: float, confidence: float
+    ) -> None:
+        """Update v7.0 Micro-Transformer anticipatory gaze forecast."""
+        with self._lock:
+            self._predicted_saccade_x = float(pred_x)
+            self._predicted_saccade_y = float(pred_y)
+            self._intent_confidence = float(confidence)
+            self._publish_snapshot()
+
+    def get_v7_intent_prediction(self) -> tuple[float, float, float]:
+        """Return latest v7.0 (predicted_x, predicted_y, intent_confidence)."""
+        with self._lock:
+            return self._predicted_saccade_x, self._predicted_saccade_y, self._intent_confidence
+
     # ------------------------------------------------------------------ #
     # Bulk access (Lock-free double-buffered atomic pointer read)
     # ------------------------------------------------------------------ #
@@ -474,5 +501,8 @@ class SystemState:
             self._circuit_breaker_state = "CLOSED"
             self._implicit_calibration_rmse = 0.0
             self._kernel_driver_active = False
+            self._predicted_saccade_x = 0.0
+            self._predicted_saccade_y = 0.0
+            self._intent_confidence = 0.0
             self._publish_snapshot()
 

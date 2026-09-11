@@ -479,6 +479,26 @@ class V6NeuromorphicConfig:
 
 
 # --------------------------------------------------------------------------- #
+# v7.0 Autonomous Spatial AI Engine & Micro-Transformer Intent Configuration
+# --------------------------------------------------------------------------- #
+@dataclass(frozen=True)
+class V7SpatialAIConfig:
+    """
+    Configuration parameters for v7.0 Master Spatial Engine:
+    - On-Device 1D Temporal Attention Micro-Transformer
+    - 2-frame anticipatory saccade target forecasting (latency < 1.1ms)
+    - High-confidence intent thresholding
+    """
+    ENABLE_MICRO_TRANSFORMER: bool = True
+    SEQUENCE_LENGTH: int = 16
+    FEATURE_DIM: int = 6
+    ATTENTION_HEAD_DIM: int = 8
+    FORECAST_HORIZON_MS: float = 33.3
+    MIN_INTENT_CONFIDENCE: float = 0.65
+    MAX_PERCEIVED_LATENCY_MS: float = 1.1
+
+
+# --------------------------------------------------------------------------- #
 # Aggregate, ready-to-import singletons
 # --------------------------------------------------------------------------- #
 HOST_OS_CONFIG: Final[HostOSConfig] = HostOSConfig()
@@ -491,6 +511,7 @@ DIRECTION_CONFIG: Final[DirectionConfigV1] = DirectionConfigV1()
 GAZE_CONFIG: Final[GazeConfig] = GazeConfig()
 V5_CONFIG: Final[V5EnterpriseConfig] = V5EnterpriseConfig()
 V6_CONFIG: Final[V6NeuromorphicConfig] = V6NeuromorphicConfig()
+V7_CONFIG: Final[V7SpatialAIConfig] = V7SpatialAIConfig()
 
 
 

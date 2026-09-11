@@ -35,6 +35,7 @@ from spatial_geometry import SpatialGeometry6DOF, HeadPose6DOF
 from implicit_calibrator import ImplicitGNNCalibrator, UIElementNode
 from neuromorphic_dvs import NeuromorphicDVSHAL, DVSEventRecord
 from bci_intent_fusion import HybridBCIIntentFusion
+from intent_predictor import MicroTransformerGazePredictor
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
 from config import CV_CONFIG, V5_CONFIG, V6_CONFIG
@@ -90,6 +91,7 @@ class FreeSightPerformanceProfiler:
             "neuromorphic_dvs_packet_ms": (0.80, "ms (< 0.80 ms event HAL SLA)"),
             "bci_intent_fusion_ms": (1.00, "ms (< 1.00 ms intent gating SLA)"),
             "os_input_dispatch_ms": (1.00, "ms (< 1.00 ms SendInput SLA)"),
+            "micro_transformer_predict_ms": (1.10, "ms (< 1.10 ms v7 intent forecast SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (28.0, "FPS (>= 28.0 FPS real-world webcam pacing SLA)"),
         }
@@ -208,6 +210,19 @@ class FreeSightPerformanceProfiler:
         os_ms = ((t1 - t0) / N) * 1000.0
         self.results["os_input_dispatch_ms"] = round(os_ms, 5)
         print(f"  [+] OSController.move_cursor():       {os_ms:8.5f} ms/op    (Target: < 1.00 ms)")
+
+        # 9. v7.0 On-Device Micro-Transformer Intent Prediction
+        predictor = MicroTransformerGazePredictor(sequence_length=16, feature_dim=6)
+        for i in range(16):
+            predictor.push_state(500.0 + i, 500.0 + i, 1.0, 1.0, 0.0, 0.0)
+        N = 5000
+        t0 = time.perf_counter()
+        for _ in range(N):
+            _ = predictor.predict_saccade_target()
+        t1 = time.perf_counter()
+        trans_ms = ((t1 - t0) / N) * 1000.0
+        self.results["micro_transformer_predict_ms"] = round(trans_ms, 5)
+        print(f"  [+] MicroTransformer.predict():       {trans_ms:8.5f} ms/infer (Target: < 1.10 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)
