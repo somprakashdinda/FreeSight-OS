@@ -207,14 +207,13 @@ def prompt_for_mode() -> OperatingMode:
     # ---------------------------------------------------------------
     # Check command-line arguments first
     # ---------------------------------------------------------------
-    for arg in sys.argv[1:]:
-        cleaned = arg.lower().strip()
-        if cleaned in ("--mode=1", "--mode=scroll", "-1", "1", "--scroll"):
-            print("Selected Mode 1: Directional Scrolling (via CLI argument)")
-            return OperatingMode.DIRECTIONAL_SCROLL
-        if cleaned in ("--mode=2", "--mode=click", "-2", "2", "--click"):
-            print("Selected Mode 2: Precision Clicking (via CLI argument)")
-            return OperatingMode.PRECISION_CLICK
+    argv_str = " ".join(sys.argv[1:]).lower()
+    if any(k in argv_str for k in ("mode=2", "mode 2", "-2", "--click", "precision")):
+        print("Selected Mode 2: Precision Clicking (via CLI argument)")
+        return OperatingMode.PRECISION_CLICK
+    if any(k in argv_str for k in ("mode=1", "mode 1", "-1", "--scroll", "directional", "scroll")):
+        print("Selected Mode 1: Directional Scrolling (via CLI argument)")
+        return OperatingMode.DIRECTIONAL_SCROLL
 
     print("=" * 60)
     print("EYE-TRACKING HOST OS CONTROL")
