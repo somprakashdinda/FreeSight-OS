@@ -48,9 +48,12 @@ from micro_expression_engine import MicroExpressionClickEngine
 from mass_center_kinematics import MassCenterKinematicsFusion
 from quantum_smooth_scroll import QuantumPhotonicScroller
 from crypto_kernel_watchdog import CryptoKernelWatchdog
+from retinal_saccade import RetinalMicroSaccadeTracker
+from eeg_intent_decoder import OmnipresentIntentDecoder
+from enclave_watchdog import HardwareEnclaveWatchdog
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -114,6 +117,8 @@ class FreeSightPerformanceProfiler:
             "micro_expression_engine_ms": (0.01, "ms (< 0.01 ms v15 micro-expression SLA)"),
             "mass_center_kinematics_ms": (0.01, "ms (< 0.01 ms v15 center-of-mass SLA)"),
             "quantum_smooth_scroll_ms": (0.01, "ms (< 0.01 ms v15 quantum scroller SLA)"),
+            "retinal_saccade_tracker_ms": (0.005, "ms (< 0.005 ms v16 micro-saccade SLA)"),
+            "eeg_intent_decoder_ms": (0.005, "ms (< 0.005 ms v16 qEEG intent SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -356,6 +361,28 @@ class FreeSightPerformanceProfiler:
         q_ms = ((t1 - t0) / N) * 1000.0
         self.results["quantum_smooth_scroll_ms"] = round(q_ms, 5)
         print(f"  [+] QuantumPhotonicScroller:          {q_ms:8.5f} ms/op    (Target: < 0.01 ms)")
+
+        # 20. v16.0 Sub-Perceptual Retinal Micro-Saccade Tracking Latency
+        retinal_tracker = RetinalMicroSaccadeTracker()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = retinal_tracker.process_ocular_sample(0.5 + (i % 5) * 0.001, 0.5, 1920, 1080)
+        t1 = time.perf_counter()
+        ret_ms = ((t1 - t0) / N) * 1000.0
+        self.results["retinal_saccade_tracker_ms"] = round(ret_ms, 6)
+        print(f"  [+] RetinalMicroSaccadeTracker:       {ret_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 21. v16.0 qEEG Direct Cognitive Action Mapping Latency
+        eeg_decoder = OmnipresentIntentDecoder()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = eeg_decoder.decode_action((0.5, 0.5), 0.2 + (i % 5) * 0.05)
+        t1 = time.perf_counter()
+        eeg_ms = ((t1 - t0) / N) * 1000.0
+        self.results["eeg_intent_decoder_ms"] = round(eeg_ms, 6)
+        print(f"  [+] OmnipresentIntentDecoder:         {eeg_ms:8.5f} ms/op    (Target: < 0.005 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

@@ -1566,3 +1566,197 @@ body {
   box-shadow: 0 0 8px rgba(255, 184, 0, 0.4);
 }
 
+/* ==========================================================================
+   v16.0 Sub-Perceptual Retinal Micro-Saccade & qEEG Cognitive HUD Styles
+   ========================================================================== */
+
+.retinal-saccade-card,
+.eeg-intent-card {
+  margin-top: 14px;
+  background: rgba(16, 22, 36, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.retinal-saccade-card:hover,
+.eeg-intent-card:hover {
+  border-color: rgba(0, 242, 254, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.saccade-header,
+.eeg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.saccade-title,
+.eeg-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.saccade-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--color-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.eeg-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--color-purple);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.saccade-grid,
+.eeg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.saccade-box,
+.eeg-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saccade-box-header,
+.eeg-box-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.saccade-val {
+  font-weight: 700;
+  color: var(--color-cyan);
+}
+
+.eeg-val {
+  font-weight: 700;
+  color: var(--color-purple);
+}
+
+.landing-preview-box {
+  width: 100%;
+  height: 42px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-blip {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  transform: translate(-50%, -50%);
+  transition: all 0.06s ease-out;
+}
+
+.saccade-stat-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.saccade-stat-metric .sub-stat {
+  display: flex;
+  justify-content: space-between;
+}
+
+.saccade-stat-metric strong {
+  color: var(--text-main);
+}
+
+.eeg-action-box {
+  height: 42px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-purple);
+  transition: all 0.2s ease;
+}
+
+.eeg-action-box.eeg-action-active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.eeg-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.eeg-action-classes {
+  display: flex;
+  gap: 4px;
+}
+
+.eeg-pill {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  padding: 4px 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  color: var(--text-dim);
+  transition: all 0.15s ease;
+}
+
+.eeg-pill.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--color-emerald);
+  color: var(--color-emerald);
+  font-weight: 700;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+

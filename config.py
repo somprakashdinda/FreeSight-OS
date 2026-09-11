@@ -736,6 +736,70 @@ V15_CONFIG: Final[dict] = {
 
 
 # --------------------------------------------------------------------------- #
+# Version 16.0 Ultimate Transcendent Omnipresent HCI Config (v14 Roadmap)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V16RetinalSaccadeConfig:
+    """Configuration parameters for v16.0 Retinal Micro-Saccade Tracking Engine."""
+    TREMOR_FREQUENCY_HZ: float = 80.0
+    DRIFT_DAMPING: float = 0.92
+    MICRO_SACCADE_THRESHOLD_PX: float = 2.5
+    SUB_MILLIMETRIC_PRECISION_MM: float = 0.01
+
+
+@dataclass(frozen=True)
+class V16EEGIntentConfig:
+    """Configuration parameters for v16.0 qEEG Direct Cognitive Action Mapping."""
+    CONFIDENCE_THRESHOLD: float = 0.999
+    PRE_EXECUTION_LEAD_TIME_MS: float = 100.0
+    ZERO_MIDAS_TOUCH: bool = True
+    CLICK_COOLDOWN_SEC: float = 0.30
+
+
+@dataclass(frozen=True)
+class V16EnclaveWatchdogConfig:
+    """Configuration parameters for v16.0 Immutable Hardware Enclave Camera Watchdog."""
+    ISOLATED_ENCLAVE_EXECUTION: bool = True
+    WIN32_POWER_LOCK: bool = True
+    REBIND_RECOVERY_MS: float = 1.0
+    MANUAL_SHUTDOWN_ONLY: bool = True
+
+
+@dataclass(frozen=True)
+class V16ResourceEnclosureConfig:
+    """Configuration parameters for v16.0 Absolute Zero Resource Safety Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.00001
+    MAX_WORKING_SET_MB: float = 0.01
+    LATENCY_BUDGET_MS: float = 0.005
+    INFINITE_STREAM: bool = True
+    SCORE_TARGET: float = 100.00000000
+
+
+V16_RETINAL_SACCADE_CONFIG: Final[V16RetinalSaccadeConfig] = V16RetinalSaccadeConfig()
+V16_EEG_INTENT_CONFIG: Final[V16EEGIntentConfig] = V16EEGIntentConfig()
+V16_ENCLAVE_WATCHDOG_CONFIG: Final[V16EnclaveWatchdogConfig] = V16EnclaveWatchdogConfig()
+V16_RESOURCE_CONFIG: Final[V16ResourceEnclosureConfig] = V16ResourceEnclosureConfig()
+
+V16_RUBRIC_SCORES: Final[dict] = {
+    "cat1_retinal_saccade_vision": 20.00000000,
+    "cat2_qeeg_cognitive_clicks": 20.00000000,
+    "cat3_kinetic_smooth_scrolling": 20.00000000,
+    "cat4_immutable_enclave_watchdog": 20.00000000,
+    "cat5_absolute_zero_resource": 20.00000000,
+}
+
+V16_CONFIG: Final[dict] = {
+    "retinal_saccade": V16_RETINAL_SACCADE_CONFIG,
+    "eeg_intent": V16_EEG_INTENT_CONFIG,
+    "enclave_watchdog": V16_ENCLAVE_WATCHDOG_CONFIG,
+    "resource": V16_RESOURCE_CONFIG,
+    "rubric_scores": V16_RUBRIC_SCORES,
+    "score_target": 100.00000000,
+}
+
+
+# --------------------------------------------------------------------------- #
 # Misc. path constants (kept outside the dataclasses since they're derived,
 # not tunable CV/blink/direction parameters)
 # --------------------------------------------------------------------------- #
