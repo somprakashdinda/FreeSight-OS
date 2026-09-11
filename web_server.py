@@ -311,6 +311,8 @@ class StudioHTTPHandler(BaseHTTPRequestHandler):
 # ---------------------------------------------------------------------------
 
 class SilentThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = True
+
     def handle_error(self, request, client_address):
         exc_type, exc_val, _ = sys.exc_info()
         if exc_type in (ConnectionResetError, ConnectionAbortedError, BrokenPipeError, OSError):
