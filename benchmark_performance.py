@@ -60,9 +60,12 @@ from full_body_mesh import FullBodySkeletalMeshTracker
 from body_action_mapper import FullBodyKinematicActionEngine
 from torso_lean_scroller import TorsoKinetic6DOFScroller
 from ergonomic_sentinel import PosturalErgonomicSentinel
+from body_gesture_v2 import EnhancedBodyGestureEngineV2
+from sec_isolation import EDRSecurityIsolationEngine
+from dopc_native_host import DOPCNativeMessageHost
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG, V17_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG, V17_CONFIG, V18_CONFIG, V19_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -136,6 +139,9 @@ class FreeSightPerformanceProfiler:
             "body_action_mapper_ms": (0.005, "ms (< 0.005 ms v18 action mapper SLA)"),
             "torso_kinetic_6dof_scroller_ms": (0.005, "ms (< 0.005 ms v18 6DOF scroller SLA)"),
             "postural_ergonomic_sentinel_ms": (0.005, "ms (< 0.005 ms v18 ergonomic sentinel SLA)"),
+            "body_gesture_v2_ms": (0.015, "ms (< 0.015 ms Level 19 140-kpts pose SLA)"),
+            "edr_security_isolation_ms": (0.005, "ms (< 0.005 ms Level 19 EDR security SLA)"),
+            "native_messaging_ipc_ms": (0.005, "ms (< 0.005 ms Level 19 native IPC SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -488,6 +494,50 @@ class FreeSightPerformanceProfiler:
         erg_ms = ((t1 - t0) / N) * 1000.0
         self.results["postural_ergonomic_sentinel_ms"] = round(erg_ms, 6)
         print(f"  [+] PosturalErgonomicSentinel:        {erg_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 30. Level 19 140-Keypoint Pose & Micro-Gesture Latency
+        pose_v2 = EnhancedBodyGestureEngineV2()
+        pose_v2.calibrate_baseline(0, 0, 0)
+        # Warm up
+        for _ in range(50):
+            pose_v2.process_kinematics(1.0, 0.5, 0.2, 0.01, 0.01)
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = pose_v2.process_kinematics(1.0 + (i % 3), 0.5, 0.2, 0.01, 0.01)
+        t1 = time.perf_counter()
+        pose_ms = ((t1 - t0) / N) * 1000.0
+        self.results["body_gesture_v2_ms"] = round(pose_ms, 6)
+        print(f"  [+] EnhancedBodyGestureEngineV2:      {pose_ms:8.5f} ms/op    (Target: < 0.015 ms)")
+
+        # 31. Level 19 EV-Signed EDR Security Clearance Latency
+        sec_engine = EDRSecurityIsolationEngine()
+        # Warm up
+        for _ in range(50):
+            sec_engine.evaluate_security_envelope()
+        N = 10000
+        t0 = time.perf_counter()
+        for _ in range(N):
+            _ = sec_engine.evaluate_security_envelope()
+        t1 = time.perf_counter()
+        sec_ms = ((t1 - t0) / N) * 1000.0
+        self.results["edr_security_isolation_ms"] = round(sec_ms, 6)
+        print(f"  [+] EDRSecurityIsolationEngine:       {sec_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 32. Level 19 Native Messaging Host IPC Command Dispatch Latency
+        native_host = DOPCNativeMessageHost()
+        test_msg = {"action": "handshake"}
+        # Warm up
+        for _ in range(50):
+            native_host.process_message(test_msg)
+        N = 10000
+        t0 = time.perf_counter()
+        for _ in range(N):
+            _ = native_host.process_message(test_msg)
+        t1 = time.perf_counter()
+        ipc_ms = ((t1 - t0) / N) * 1000.0
+        self.results["native_messaging_ipc_ms"] = round(ipc_ms, 6)
+        print(f"  [+] DOPCNativeMessageHost.process():  {ipc_ms:8.5f} ms/op    (Target: < 0.005 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

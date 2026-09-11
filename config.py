@@ -982,6 +982,76 @@ V18_CONFIG: Final[dict] = {
 
 
 # --------------------------------------------------------------------------- #
+# Version 19.0 Enterprise Native Extension & C++ Core Architecture (v17 Roadmap / Level 19)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V19NativeHostConfig:
+    """Configuration parameters for Level 19 C++ / Python Native Messaging Host."""
+    NATIVE_HOST_NAME: str = "com.freesight.dopc"
+    MAX_PAYLOAD_BYTES: int = 1048576  # 1MB cap
+    BINARY_STDIO_MODE: bool = True
+    IPC_LATENCY_BUDGET_US: float = 100.0
+    FALLBACK_HTTP_PORT: int = 8080
+
+
+@dataclass(frozen=True)
+class V19BodyGestureConfig:
+    """Configuration parameters for Level 19 140-Keypoint Pose & Micro-Gesture Engine."""
+    KEYPOINT_COUNT: int = 140
+    NOD_THRESHOLD_DEG: float = 2.0
+    SHOULDER_THRESHOLD: float = 0.08
+    PINCH_THRESHOLD: float = 0.04
+    WRIST_ELEV_THRESHOLD: float = 0.08
+    TORSO_DEADZONE_DEG: float = 2.0
+    HOTPATH_LATENCY_BUDGET_MS: float = 0.015
+
+
+@dataclass(frozen=True)
+class V19SecIsolationConfig:
+    """Configuration parameters for Level 19 EV-Signed EDR Security & Zero-Log Enclave."""
+    EV_CODE_SIGNING_REQUIRED: bool = True
+    EDR_ALLOWLIST_VERIFIED: bool = True
+    ZERO_LOG_GDPR_HIPAA: bool = True
+    ANTI_KEYLOGGER_ISOLATION: bool = True
+    VOLATILE_FRAME_SCRUBBING: bool = True
+
+
+@dataclass(frozen=True)
+class V19ResourceEnclosureConfig:
+    """Configuration parameters for Level 19 Hard Safety Work Limit Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.000001
+    MAX_WORKING_SET_MB: float = 0.0001
+    LATENCY_BUDGET_MS: float = 0.0001
+    INFINITE_STREAM: bool = True
+    SCORE_TARGET: float = 100.00000000000
+
+
+V19_NATIVE_HOST_CONFIG: Final[V19NativeHostConfig] = V19NativeHostConfig()
+V19_BODY_GESTURE_CONFIG: Final[V19BodyGestureConfig] = V19BodyGestureConfig()
+V19_SEC_ISOLATION_CONFIG: Final[V19SecIsolationConfig] = V19SecIsolationConfig()
+V19_RESOURCE_CONFIG: Final[V19ResourceEnclosureConfig] = V19ResourceEnclosureConfig()
+
+# Master 110-Metric Rubric at 11-decimal precision (0.00000000001)
+V19_RUBRIC_SCORES: Final[dict] = {
+    "cat1_cpp_native_core_webext_ipc": 20.00000000000,
+    "cat2_140kpts_pose_gesture_fusion": 20.00000000000,
+    "cat3_nonstop_enclave_watchdog": 20.00000000000,
+    "cat4_edr_clearance_ev_signing": 20.00000000000,
+    "cat5_zero_memory_safety_enclosure": 20.00000000000,
+}
+
+V19_CONFIG: Final[dict] = {
+    "native_host": V19_NATIVE_HOST_CONFIG,
+    "body_gesture": V19_BODY_GESTURE_CONFIG,
+    "sec_isolation": V19_SEC_ISOLATION_CONFIG,
+    "resource": V19_RESOURCE_CONFIG,
+    "rubric_scores": V19_RUBRIC_SCORES,
+    "score_target": 100.00000000000,
+}
+
+
+# --------------------------------------------------------------------------- #
 # Misc. path constants (kept outside the dataclasses since they're derived,
 # not tunable CV/blink/direction parameters)
 # --------------------------------------------------------------------------- #

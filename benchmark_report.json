@@ -1,42 +1,45 @@
 {
-  "state_snapshot_us": 0.0331,
-  "ukf_step_ms": 0.02568,
-  "screen_mapper_predict_ms": 0.04116,
+  "state_snapshot_us": 0.0345,
+  "ukf_step_ms": 0.0275,
+  "screen_mapper_predict_ms": 0.04309,
   "spatial_6dof_compensation_ms": 0.00301,
-  "implicit_calibration_step_ms": 0.0044,
-  "neuromorphic_dvs_packet_ms": 0.0199,
-  "neuromorphic_events_per_sec": 25130806.0,
+  "implicit_calibration_step_ms": 0.00443,
+  "neuromorphic_dvs_packet_ms": 0.02004,
+  "neuromorphic_events_per_sec": 24946614.0,
   "bci_intent_fusion_ms": 0.00011,
   "os_input_dispatch_ms": 0.00693,
-  "micro_transformer_predict_ms": 0.01855,
-  "subpixel_smooth_scroll_ms": 0.00056,
-  "work_limit_enforce_ms": 0.00114,
-  "biosynaptic_analog_spike_ms": 0.00677,
-  "jit_assembly_project_ms": 0.00223,
-  "body_kinematics_step_ms": 0.00068,
-  "body_click_mapper_ms": 0.00051,
-  "lean_scroller_step_ms": 0.00057,
-  "micro_expression_engine_ms": 0.00024,
-  "mass_center_kinematics_ms": 0.00167,
-  "quantum_smooth_scroll_ms": 0.0026,
-  "retinal_saccade_tracker_ms": 0.002284,
-  "eeg_intent_decoder_ms": 0.00048,
-  "skeletal_mesh_tracker_ms": 0.010487,
-  "gestural_click_engine_ms": 0.00038,
-  "spatial_kinetic_scroller_ms": 0.000987,
-  "posture_sentinel_ms": 0.000674,
-  "full_body_skeletal_mesh_ms": 0.007516,
-  "body_action_mapper_ms": 0.000705,
-  "torso_kinetic_6dof_scroller_ms": 0.002642,
-  "postural_ergonomic_sentinel_ms": 0.004044,
-  "live_camera_stream_fps": 30.88,
-  "pure_inference_latency_ms": 5.47,
-  "pure_inference_capacity_fps": 182.7,
-  "mean_frame_latency_ms": 32.37,
-  "p50_frame_latency_ms": 32.17,
-  "p95_frame_latency_ms": 47.99,
-  "p99_frame_latency_ms": 48.28,
-  "frame_jitter_std_ms": 7.01,
+  "micro_transformer_predict_ms": 0.01883,
+  "subpixel_smooth_scroll_ms": 0.00046,
+  "work_limit_enforce_ms": 0.00145,
+  "biosynaptic_analog_spike_ms": 0.00634,
+  "jit_assembly_project_ms": 0.00206,
+  "body_kinematics_step_ms": 0.00078,
+  "body_click_mapper_ms": 0.00046,
+  "lean_scroller_step_ms": 0.0005,
+  "micro_expression_engine_ms": 0.00019,
+  "mass_center_kinematics_ms": 0.00159,
+  "quantum_smooth_scroll_ms": 0.00254,
+  "retinal_saccade_tracker_ms": 0.002141,
+  "eeg_intent_decoder_ms": 0.00046,
+  "skeletal_mesh_tracker_ms": 0.010381,
+  "gestural_click_engine_ms": 0.000372,
+  "spatial_kinetic_scroller_ms": 0.000884,
+  "posture_sentinel_ms": 0.000602,
+  "full_body_skeletal_mesh_ms": 0.007562,
+  "body_action_mapper_ms": 0.000767,
+  "torso_kinetic_6dof_scroller_ms": 0.002505,
+  "postural_ergonomic_sentinel_ms": 0.004121,
+  "body_gesture_v2_ms": 0.009508,
+  "edr_security_isolation_ms": 0.0008,
+  "native_messaging_ipc_ms": 0.00041,
+  "live_camera_stream_fps": 30.29,
+  "pure_inference_latency_ms": 5.64,
+  "pure_inference_capacity_fps": 177.2,
+  "mean_frame_latency_ms": 33.01,
+  "p50_frame_latency_ms": 32.08,
+  "p95_frame_latency_ms": 46.92,
+  "p99_frame_latency_ms": 48.04,
+  "frame_jitter_std_ms": 5.43,
   "ram_usage_mb": 0.0,
   "ram_delta_mb": 0.0,
   "sla_compliance_pct": 100.0,
@@ -45,21 +48,21 @@
   "evaluation_table": [
     {
       "metric": "state_snapshot_us",
-      "measured": 0.0331,
+      "measured": 0.0345,
       "threshold": 10.0,
       "description": "\u00b5s (< 10 \u00b5s lock-free SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "ukf_step_ms",
-      "measured": 0.02568,
+      "measured": 0.0275,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms predictive filter SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "screen_mapper_predict_ms",
-      "measured": 0.04116,
+      "measured": 0.04309,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms RLS mapping SLA)",
       "status": "PASS [ULTRA-FAST]"
@@ -73,14 +76,14 @@
     },
     {
       "metric": "implicit_calibration_step_ms",
-      "measured": 0.0044,
+      "measured": 0.00443,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms autonomous calibrator SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "neuromorphic_dvs_packet_ms",
-      "measured": 0.0199,
+      "measured": 0.02004,
       "threshold": 0.8,
       "description": "ms (< 0.80 ms event HAL SLA)",
       "status": "PASS [ULTRA-FAST]"
@@ -101,161 +104,182 @@
     },
     {
       "metric": "micro_transformer_predict_ms",
-      "measured": 0.01855,
+      "measured": 0.01883,
       "threshold": 1.1,
       "description": "ms (< 1.10 ms v7 intent forecast SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "subpixel_smooth_scroll_ms",
-      "measured": 0.00056,
+      "measured": 0.00046,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v9 physics scroller SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "work_limit_enforce_ms",
-      "measured": 0.00114,
+      "measured": 0.00145,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v9 resource guard SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "biosynaptic_analog_spike_ms",
-      "measured": 0.00677,
+      "measured": 0.00634,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v13 analog neuromorphic SLA)",
       "status": "PASS"
     },
     {
       "metric": "jit_assembly_project_ms",
-      "measured": 0.00223,
+      "measured": 0.00206,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v13 vectorized JIT SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "body_kinematics_step_ms",
-      "measured": 0.00068,
+      "measured": 0.00078,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v14 body pose SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "body_click_mapper_ms",
-      "measured": 0.00051,
+      "measured": 0.00046,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v14 nod click SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "lean_scroller_step_ms",
-      "measured": 0.00057,
+      "measured": 0.0005,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v14 lean scroll SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "micro_expression_engine_ms",
-      "measured": 0.00024,
+      "measured": 0.00019,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v15 micro-expression SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "mass_center_kinematics_ms",
-      "measured": 0.00167,
+      "measured": 0.00159,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v15 center-of-mass SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "quantum_smooth_scroll_ms",
-      "measured": 0.0026,
+      "measured": 0.00254,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v15 quantum scroller SLA)",
       "status": "PASS"
     },
     {
       "metric": "retinal_saccade_tracker_ms",
-      "measured": 0.002284,
+      "measured": 0.002141,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v16 micro-saccade SLA)",
       "status": "PASS"
     },
     {
       "metric": "eeg_intent_decoder_ms",
-      "measured": 0.00048,
+      "measured": 0.00046,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v16 qEEG intent SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "skeletal_mesh_tracker_ms",
-      "measured": 0.010487,
+      "measured": 0.010381,
       "threshold": 0.015,
       "description": "ms (< 0.015 ms v17 65-keypoint SLA)",
       "status": "PASS"
     },
     {
       "metric": "gestural_click_engine_ms",
-      "measured": 0.00038,
+      "measured": 0.000372,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v17 postural click SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "spatial_kinetic_scroller_ms",
-      "measured": 0.000987,
+      "measured": 0.000884,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v17 3D lean scroll SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "posture_sentinel_ms",
-      "measured": 0.000674,
+      "measured": 0.000602,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v17 posture sentinel SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "full_body_skeletal_mesh_ms",
-      "measured": 0.007516,
+      "measured": 0.007562,
       "threshold": 0.015,
       "description": "ms (< 0.015 ms v18 128-keypoint SLA)",
       "status": "PASS"
     },
     {
       "metric": "body_action_mapper_ms",
-      "measured": 0.000705,
+      "measured": 0.000767,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v18 action mapper SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "torso_kinetic_6dof_scroller_ms",
-      "measured": 0.002642,
+      "measured": 0.002505,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v18 6DOF scroller SLA)",
       "status": "PASS"
     },
     {
       "metric": "postural_ergonomic_sentinel_ms",
-      "measured": 0.004044,
+      "measured": 0.004121,
       "threshold": 0.005,
       "description": "ms (< 0.005 ms v18 ergonomic sentinel SLA)",
       "status": "PASS"
     },
     {
+      "metric": "body_gesture_v2_ms",
+      "measured": 0.009508,
+      "threshold": 0.015,
+      "description": "ms (< 0.015 ms Level 19 140-kpts pose SLA)",
+      "status": "PASS"
+    },
+    {
+      "metric": "edr_security_isolation_ms",
+      "measured": 0.0008,
+      "threshold": 0.005,
+      "description": "ms (< 0.005 ms Level 19 EDR security SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "native_messaging_ipc_ms",
+      "measured": 0.00041,
+      "threshold": 0.005,
+      "description": "ms (< 0.005 ms Level 19 native IPC SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
       "metric": "pure_inference_latency_ms",
-      "measured": 5.47,
+      "measured": 5.64,
       "threshold": 25.0,
       "description": "ms (< 25.0 ms algorithmic budget)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "live_camera_stream_fps",
-      "measured": 30.88,
+      "measured": 30.29,
       "threshold": 20.0,
       "description": "FPS (>= 20.0 FPS real-world webcam pacing SLA)",
       "status": "PASS [EXCEEDED]"

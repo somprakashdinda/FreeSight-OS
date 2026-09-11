@@ -1,0 +1,9 @@
+{
+  "name": "com.freesight.dopc",
+  "description": "DOPC Enterprise Native Messaging Host for Chrome and Edge",
+  "path": "c:\\Users\\sompr\\Downloads\\optimized_code\\dopc_native_host.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*/*"
+  ]
+}
