@@ -40,7 +40,7 @@ except Exception:
     pass
 
 # FreeSight-OS Core Modules
-from os_interop import WebcamCapture, OSController
+from os_interop import WebcamCapture, OSController, keep_display_active, configure_system_power_screen_awake
 from vision_pipeline import GazeTracker
 from state_manager import SystemState, DirectionV1
 from predictive_filter import PredictiveGazeUKF
@@ -322,6 +322,10 @@ class SilentThreadingHTTPServer(ThreadingHTTPServer):
 
 def run_server(port: int = SERVER_PORT, auto_open_browser: bool = True):
     global server_running
+
+    # Keep display and system awake continuously
+    keep_display_active(True)
+    configure_system_power_screen_awake(True)
 
     # Start vision worker in daemon thread
     vision_thread = threading.Thread(target=vision_background_loop, name="vision-worker", daemon=True)

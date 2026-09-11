@@ -354,6 +354,10 @@ class OSController:
         except Exception:
             self._kernel_driver = None
 
+        # Prevent screen timeout / sleep while FreeSight-OS is active
+        keep_display_active(True)
+        configure_system_power_screen_awake(True)
+
     @property
     def is_kernel_driver_active(self) -> bool:
         """Returns True if input is dispatched via Ring-0 KMDF driver."""
@@ -449,3 +453,50 @@ class OSController:
     def connect(self) -> str:
         """No-op for Host OS, provided for API compatibility."""
         return "OSController: connected to Host OS"
+
+
+# ===========================================================================
+# Continuous Display & System Sleep Prevention
+# ===========================================================================
+
+def keep_display_active(enable: bool = True) -> bool:
+    """
+    Prevents the display from turning off and the system from entering idle sleep.
+    Uses Win32 SetThreadExecutionState:
+    ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x00000001) | ES_DISPLAY_REQUIRED (0x00000002)
+    """
+    if not _IS_WINDOWS:
+        return False
+    try:
+        ES_CONTINUOUS = 0x80000000
+        ES_SYSTEM_REQUIRED = 0x00000001
+        ES_DISPLAY_REQUIRED = 0x00000002
+        if enable:
+            ctypes.windll.kernel32.SetThreadExecutionState(
+                ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+            )
+        else:
+            ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
+        return True
+    except Exception:
+        return False
+
+
+def configure_system_power_screen_awake(enable: bool = True) -> bool:
+    """
+    Configures Windows power scheme monitor and standby timeouts.
+    If enable=True, sets display and sleep timeouts to 0 (Never turn off).
+    """
+    if not _IS_WINDOWS:
+        return False
+    import subprocess
+    try:
+        timeout_val = "0" if enable else "15"
+        subprocess.run(["powercfg", "/change", "monitor-timeout-ac", timeout_val], capture_output=True, check=False)
+        subprocess.run(["powercfg", "/change", "monitor-timeout-dc", timeout_val], capture_output=True, check=False)
+        subprocess.run(["powercfg", "/change", "standby-timeout-ac", timeout_val], capture_output=True, check=False)
+        subprocess.run(["powercfg", "/change", "standby-timeout-dc", timeout_val], capture_output=True, check=False)
+        return True
+    except Exception:
+        return False
+
