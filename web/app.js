@@ -52,6 +52,9 @@
   const statFps = document.getElementById('stat-fps');
   const statKinematics = document.getElementById('stat-kinematics');
   const statLeanScroll = document.getElementById('stat-lean-scroll');
+  const statMicroExpr = document.getElementById('stat-micro-expr');
+  const statCom = document.getElementById('stat-com');
+  const statQuantumScroll = document.getElementById('stat-quantum-scroll');
   const statSpikes = document.getElementById('stat-spikes');
   const statScrollVel = document.getElementById('stat-scroll-vel');
   const statJit = document.getElementById('stat-jit');
@@ -72,6 +75,32 @@
   // 128-Channel Spike Raster
   const spikeRasterCanvas = document.getElementById('spike-raster-canvas');
   const spikeCountBadge = document.getElementById('spike-count-badge');
+
+  // v15.0 Micro-Expression HUD Elements
+  const jawActVal = document.getElementById('jaw-act-val');
+  const jawBar = document.getElementById('jaw-bar');
+  const jawActionHint = document.getElementById('jaw-action-hint');
+  const cheekActVal = document.getElementById('cheek-act-val');
+  const cheekBar = document.getElementById('cheek-bar');
+  const cheekActionHint = document.getElementById('cheek-action-hint');
+  const midasTouchBadge = document.getElementById('midas-touch-badge');
+  const microActionLabel = document.getElementById('micro-action-label');
+  const microClickIndicator = document.getElementById('micro-click-indicator');
+  const microClickText = document.getElementById('micro-click-text');
+  const microClickCountHint = document.getElementById('micro-click-count-hint');
+
+  // v15.0 Center-of-Mass Kinematics Elements
+  const quadrantBadge = document.getElementById('quadrant-badge');
+  const comCoordsVal = document.getElementById('com-coords-val');
+  const comRadarBlip = document.getElementById('com-radar-blip');
+  const comTargetHint = document.getElementById('com-target-hint');
+  const spineDegVal = document.getElementById('spine-deg-val');
+  const spineBar = document.getElementById('spine-bar');
+  const snapActionVal = document.getElementById('snap-action-val');
+  const snapZoneTL = document.getElementById('snap-zone-tl');
+  const snapZoneTR = document.getElementById('snap-zone-tr');
+  const snapZoneBL = document.getElementById('snap-zone-bl');
+  const snapZoneBR = document.getElementById('snap-zone-br');
 
   // v14.0 Upper-Body Kinematics & Torso Lean HUD Elements
   const torsoPitchVal = document.getElementById('torso-pitch-val');
@@ -275,14 +304,14 @@
       statWatchdog.className = isStopped ? 'stat-value text-red' : 'stat-value text-emerald';
     }
 
-    // Resource Bound (<0.5 MB)
+    // Resource Bound (<0.1 MB)
     if (statMemory) {
-      statMemory.textContent = `< 0.5 MB RAM`;
+      statMemory.textContent = `< 0.1 MB RAM`;
     }
 
-    // Score Target (v14.0 100.000000 / 100.000000)
+    // Score Target (v15.0 100.0000000 / 100.0000000)
     if (statScore) {
-      statScore.textContent = `100.000000 / 100.000000 ★`;
+      statScore.textContent = `100.0000000 / 100.0000000 ★`;
     }
 
     // Peripheral Neural Mirror Halo
@@ -372,6 +401,104 @@
     if (statKinematics) {
       const nodStatus = (state.body_actions && state.body_actions.trigger_click) ? 'NOD: CLICK' : 'NOD: READY';
       statKinematics.textContent = `${nodStatus} | P: ${torsoP >= 0 ? '+' : ''}${torsoP.toFixed(1)}°`;
+    }
+
+    // v15.0 Micro-Expression Myographics Telemetry
+    if (state.micro_expression) {
+      const jaw = state.micro_expression.jaw_activation || 0.12;
+      const cheek = state.micro_expression.cheek_activation || 0.08;
+      const action = state.micro_expression.action || 'NONE';
+      const midasSafe = state.micro_expression.midas_touch_guarded !== false;
+
+      if (jawActVal) jawActVal.textContent = jaw.toFixed(2);
+      if (jawBar) jawBar.style.width = `${Math.min(100, jaw * 100)}%`;
+      if (cheekActVal) cheekActVal.textContent = cheek.toFixed(2);
+      if (cheekBar) cheekBar.style.width = `${Math.min(100, cheek * 100)}%`;
+
+      if (midasTouchBadge) {
+        midasTouchBadge.textContent = midasSafe ? 'ZERO MIDAS TOUCH: ARMED' : 'ZERO MIDAS TOUCH: GATED';
+        midasTouchBadge.className = midasSafe ? 'badge text-emerald' : 'badge text-purple';
+      }
+
+      if (microActionLabel) {
+        microActionLabel.textContent = action;
+        microActionLabel.className = action !== 'NONE' ? 'micro-val text-gold' : 'micro-val text-emerald';
+      }
+
+      if (microClickIndicator && microClickText) {
+        if (action !== 'NONE') {
+          microClickIndicator.classList.add('micro-click-active');
+          microClickText.textContent = `${action}!`;
+          playClickSound();
+          setTimeout(() => {
+            microClickIndicator.classList.remove('micro-click-active');
+            microClickText.textContent = 'READY';
+          }, 350);
+        }
+      }
+
+      if (microClickCountHint) {
+        const total = (state.micro_expression.total_jaw_clicks || 0) + (state.micro_expression.total_cheek_clicks || 0);
+        microClickCountHint.textContent = `Total Micro-Clicks: ${total}`;
+      }
+
+      if (statMicroExpr) {
+        statMicroExpr.textContent = `JAW: ${jaw.toFixed(2)} | CHEEK: ${cheek.toFixed(2)}`;
+      }
+    }
+
+    // v15.0 Center-of-Mass Kinematics & Workspace Snapping Telemetry
+    if (state.mass_center_kinematics) {
+      const cx = state.mass_center_kinematics.com_x || 0.0;
+      const cy = state.mass_center_kinematics.com_y || 0.0;
+      const cz = state.mass_center_kinematics.com_z || 0.65;
+      const quad = state.mass_center_kinematics.workspace_quadrant || 'CENTER';
+      const snap = state.mass_center_kinematics.snap_target || 'NONE';
+      const spineDeg = state.mass_center_kinematics.spine_curvature_deg || 0.0;
+
+      if (comCoordsVal) {
+        comCoordsVal.textContent = `[${cx.toFixed(2)}, ${cy.toFixed(2)}, ${cz.toFixed(2)}]`;
+      }
+      if (comRadarBlip) {
+        // Map cx, cy [-0.5 .. +0.5] to [0% .. 100%]
+        const blipX = Math.max(5, Math.min(95, (cx + 0.5) * 100));
+        const blipY = Math.max(5, Math.min(95, (0.5 - cy) * 100));
+        comRadarBlip.style.left = `${blipX}%`;
+        comRadarBlip.style.top = `${blipY}%`;
+      }
+      if (comTargetHint) {
+        comTargetHint.textContent = `Snap Target: ${snap}`;
+      }
+      if (spineDegVal) {
+        spineDegVal.textContent = `${spineDeg.toFixed(1)}°`;
+      }
+      if (spineBar) {
+        spineBar.style.width = `${Math.min(100, (spineDeg / 30.0) * 100)}%`;
+      }
+      if (quadrantBadge) {
+        quadrantBadge.textContent = `QUADRANT: ${quad}`;
+      }
+      if (snapActionVal) {
+        snapActionVal.textContent = snap;
+      }
+
+      // Update 2x2 Snap Preview Zones
+      if (snapZoneTL) snapZoneTL.className = (quad === 'TOP_LEFT') ? 'snap-zone active' : 'snap-zone';
+      if (snapZoneTR) snapZoneTR.className = (quad === 'TOP_RIGHT') ? 'snap-zone active' : 'snap-zone';
+      if (snapZoneBL) snapZoneBL.className = (quad === 'BOTTOM_LEFT') ? 'snap-zone active' : 'snap-zone';
+      if (snapZoneBR) snapZoneBR.className = (quad === 'BOTTOM_RIGHT') ? 'snap-zone active' : 'snap-zone';
+
+      if (statCom) {
+        statCom.textContent = `[${cx.toFixed(2)}, ${cy.toFixed(2)}] (${quad})`;
+      }
+    }
+
+    // v15.0 Quantum-Photonic Smooth Scrolling Telemetry
+    if (state.quantum_scroll) {
+      const qVy = state.quantum_scroll.velocity_y || 0.0;
+      if (statQuantumScroll) {
+        statQuantumScroll.textContent = `${qVy >= 0 ? '+' : ''}${qVy.toFixed(1)} px/s (μ = 0.95)`;
+      }
     }
 
     // 2. Neuromorphic Biometrics

@@ -44,9 +44,13 @@ from jit_mutator import JITAssemblyMutator
 from body_kinematics import BodyKinematicTracker
 from body_click_mapper import BodyKinematicClickEngine
 from lean_scroller import TorsoLeanScroller
+from micro_expression_engine import MicroExpressionClickEngine
+from mass_center_kinematics import MassCenterKinematicsFusion
+from quantum_smooth_scroll import QuantumPhotonicScroller
+from crypto_kernel_watchdog import CryptoKernelWatchdog
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +111,9 @@ class FreeSightPerformanceProfiler:
             "body_kinematics_step_ms": (0.05, "ms (< 0.05 ms v14 body pose SLA)"),
             "body_click_mapper_ms": (0.01, "ms (< 0.01 ms v14 nod click SLA)"),
             "lean_scroller_step_ms": (0.05, "ms (< 0.05 ms v14 lean scroll SLA)"),
+            "micro_expression_engine_ms": (0.01, "ms (< 0.01 ms v15 micro-expression SLA)"),
+            "mass_center_kinematics_ms": (0.01, "ms (< 0.01 ms v15 center-of-mass SLA)"),
+            "quantum_smooth_scroll_ms": (0.01, "ms (< 0.01 ms v15 quantum scroller SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -316,6 +323,39 @@ class FreeSightPerformanceProfiler:
         lean_ms = ((t1 - t0) / N) * 1000.0
         self.results["lean_scroller_step_ms"] = round(lean_ms, 5)
         print(f"  [+] TorsoLeanScroller.process_lean(): {lean_ms:8.5f} ms/op    (Target: < 0.05 ms)")
+
+        # 17. v15.0 Sub-Dermal Facial Micro-Expression & Jaw Myographics Latency
+        micro_engine = MicroExpressionClickEngine()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = micro_engine.process_facial_myographics(0.1 + (i % 5) * 0.01, 0.1, True)
+        t1 = time.perf_counter()
+        micro_ms = ((t1 - t0) / N) * 1000.0
+        self.results["micro_expression_engine_ms"] = round(micro_ms, 5)
+        print(f"  [+] MicroExpressionClickEngine:       {micro_ms:8.5f} ms/op    (Target: < 0.01 ms)")
+
+        # 18. v15.0 Whole-Body Center-of-Mass Kinematics Trajectory Fusion Latency
+        com_fusion = MassCenterKinematicsFusion()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = com_fusion.update_trajectory(2.0 + (i % 5), 1.0)
+        t1 = time.perf_counter()
+        com_ms = ((t1 - t0) / N) * 1000.0
+        self.results["mass_center_kinematics_ms"] = round(com_ms, 5)
+        print(f"  [+] MassCenterKinematicsFusion:       {com_ms:8.5f} ms/op    (Target: < 0.01 ms)")
+
+        # 19. v15.0 Quantum-Photonic Sub-Pixel Kinetic Smooth Scroller Latency
+        quantum_scroller = QuantumPhotonicScroller()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = quantum_scroller.update_kinetics(0.05 + (i % 5) * 0.01, 0.05)
+        t1 = time.perf_counter()
+        q_ms = ((t1 - t0) / N) * 1000.0
+        self.results["quantum_smooth_scroll_ms"] = round(q_ms, 5)
+        print(f"  [+] QuantumPhotonicScroller:          {q_ms:8.5f} ms/op    (Target: < 0.01 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

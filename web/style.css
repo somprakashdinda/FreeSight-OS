@@ -1316,3 +1316,253 @@ body {
   background: var(--color-emerald);
   box-shadow: 0 0 8px var(--color-emerald);
 }
+
+/* ==========================================================================
+   v15.0 Sub-Dermal Facial Micro-Expression & Jaw Myographics HUD
+   ========================================================================== */
+
+.micro-expression-card {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  box-shadow: inset 0 0 16px rgba(168, 85, 247, 0.06);
+}
+
+.micro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.micro-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.micro-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid var(--color-purple);
+  color: var(--color-purple);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.micro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.micro-box {
+  background: rgba(16, 22, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.micro-box-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.micro-val {
+  font-weight: 700;
+  color: var(--color-purple);
+}
+
+.micro-impulse-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.15s ease;
+}
+
+.micro-impulse-box.micro-click-active {
+  background: rgba(168, 85, 247, 0.3);
+  border-color: var(--color-purple);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.6);
+  transform: scale(1.03);
+}
+
+.micro-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.1s ease;
+}
+
+.micro-click-active .micro-pulse-dot {
+  background: var(--color-purple);
+  box-shadow: 0 0 10px var(--color-purple);
+}
+
+/* ==========================================================================
+   v15.0 Whole-Body Center-of-Mass Kinematics & Snapping Radar
+   ========================================================================== */
+
+.mass-center-card {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  box-shadow: inset 0 0 16px rgba(0, 242, 254, 0.05);
+}
+
+.mass-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mass-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mass-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.mass-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.mass-box {
+  background: rgba(16, 22, 36, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mass-box-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.mass-val {
+  font-weight: 700;
+  color: var(--color-cyan);
+}
+
+.com-radar-container {
+  width: 100%;
+  height: 48px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.com-radar-grid {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.radar-line-v {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(0, 242, 254, 0.2);
+}
+
+.radar-line-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0, 242, 254, 0.2);
+}
+
+.radar-blip {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px var(--color-cyan);
+  transform: translate(-50%, -50%);
+  transition: all 0.08s ease-out;
+}
+
+.snap-box-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  height: 48px;
+}
+
+.snap-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.snap-zone.active {
+  background: rgba(255, 184, 0, 0.25);
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(255, 184, 0, 0.4);
+}
+

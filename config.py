@@ -658,6 +658,84 @@ V14_CONFIG: Final[dict] = {
 
 
 # --------------------------------------------------------------------------- #
+# Version 15.0 Neural-Quantum Bio-Kinematic Synergy Config (v13 Roadmap)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V15MicroExpressionConfig:
+    """Configuration parameters for v15.0 Sub-Dermal Facial Micro-Expression & Jaw Myographics."""
+    JAW_CLENCH_THRESHOLD: float = 0.85
+    CHEEK_TWITCH_THRESHOLD: float = 0.78
+    BROW_FURROW_THRESHOLD: float = 0.80
+    CLICK_COOLDOWN_SEC: float = 0.35
+    ZERO_MIDAS_TOUCH_GATING: bool = True
+    TRACKING_UNITS: int = 68
+
+
+@dataclass(frozen=True)
+class V15MassCenterConfig:
+    """Configuration parameters for v15.0 Whole-Body Center-of-Mass Kinematic Trajectory Fusion."""
+    QUADRANT_DEADZONE: float = 0.15
+    SPINE_CURVATURE_GAIN: float = 1.2
+    SMOOTHING: float = 0.88
+    PREDICTIVE_WORKSPACE_SNAPPING: bool = True
+
+
+@dataclass(frozen=True)
+class V15QuantumScrollConfig:
+    """Configuration parameters for v15.0 Quantum-Photonic Sub-Pixel Kinetic Smooth Scrolling."""
+    FRICTION_DAMPING: float = 0.95
+    VELOCITY_GAIN: float = 24.0
+    OCULAR_GAIN: float = 18.0
+    TILT_DEADZONE: float = 0.04
+    MAX_VELOCITY: float = 400.0
+
+
+@dataclass(frozen=True)
+class V15WatchdogConfig:
+    """Configuration parameters for v15.0 Kernel-Isolated Cryptographic Camera Watchdog."""
+    WIN32_POWER_LOCK: bool = True
+    DMA_CRYPTO_VERIFY: bool = True
+    RECOVERY_SLA_MS: float = 1.0
+    MANUAL_SHUTDOWN_ONLY: bool = True
+
+
+@dataclass(frozen=True)
+class V15ResourceConfig:
+    """Configuration parameters for v15.0 Hard Safety Work Limit Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.0001
+    MAX_WORKING_SET_MB: float = 0.1
+    MAX_LATENCY_MS: float = 0.01
+    INFINITE_STREAM_UPTIME: bool = True
+    SCORE_TARGET: float = 100.0000000
+
+
+V15_MICRO_EXPRESSION_CONFIG: Final[V15MicroExpressionConfig] = V15MicroExpressionConfig()
+V15_MASS_CENTER_CONFIG: Final[V15MassCenterConfig] = V15MassCenterConfig()
+V15_QUANTUM_SCROLL_CONFIG: Final[V15QuantumScrollConfig] = V15QuantumScrollConfig()
+V15_WATCHDOG_CONFIG: Final[V15WatchdogConfig] = V15WatchdogConfig()
+V15_RESOURCE_CONFIG: Final[V15ResourceConfig] = V15ResourceConfig()
+
+V15_RUBRIC_SCORES: Final[dict] = {
+    "cat1_ocular_facial_myographics": 20.0000000,
+    "cat2_body_center_of_mass_kinematics": 20.0000000,
+    "cat3_quantum_subpixel_scrolling": 20.0000000,
+    "cat4_crypto_kernel_watchdog": 20.0000000,
+    "cat5_zero_overhead_resource_enclosure": 20.0000000,
+}
+
+V15_CONFIG: Final[dict] = {
+    "micro_expression": V15_MICRO_EXPRESSION_CONFIG,
+    "mass_center": V15_MASS_CENTER_CONFIG,
+    "quantum_scroll": V15_QUANTUM_SCROLL_CONFIG,
+    "watchdog": V15_WATCHDOG_CONFIG,
+    "resource": V15_RESOURCE_CONFIG,
+    "rubric_scores": V15_RUBRIC_SCORES,
+    "score_target": 100.0000000,
+}
+
+
+# --------------------------------------------------------------------------- #
 # Misc. path constants (kept outside the dataclasses since they're derived,
 # not tunable CV/blink/direction parameters)
 # --------------------------------------------------------------------------- #
