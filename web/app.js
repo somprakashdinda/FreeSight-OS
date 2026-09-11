@@ -108,21 +108,30 @@
     appendLog(`CONFIRMED SELECTION: "${title}"`, 'text-emerald');
   }
 
-  // --- Telemetry Sync (30-60 Hz) ---
-  async function fetchState() {
+  // --- High-Speed Telemetry Polling (40 Hz) & 60-144 FPS Render Loop ---
+  let latestState = null;
+  let isFetching = false;
+  let targetScreenX = window.innerWidth / 2;
+  let targetScreenY = window.innerHeight / 2;
+
+  async function pollTelemetry() {
+    if (isFetching) return;
+    isFetching = true;
     try {
       const resp = await fetch('/api/state');
-      if (!resp.ok) throw new Error('State fetch error');
-      const data = await resp.json();
-      updateDashboard(data);
+      if (resp.ok) {
+        latestState = await resp.json();
+        updateDashboardMetrics(latestState);
+      }
     } catch (err) {
-      // Backend reconnecting
+      // Reconnecting
     } finally {
-      requestAnimationFrame(() => setTimeout(fetchState, 33)); // ~30 FPS poll
+      isFetching = false;
+      setTimeout(pollTelemetry, 25);
     }
   }
 
-  function updateDashboard(state) {
+  function updateDashboardMetrics(state) {
     if (!state) return;
 
     // 1. Top HUD Stats
@@ -181,32 +190,39 @@
         scrollStatus.className = 'badge';
       }
     }
+  }
 
-    // 3. Floating Gaze Reticle Position
-    // Use predicted screen coordinate or map normalized pupil coordinate
-    let targetScreenX = state.predicted_screen_x || 0;
-    let targetScreenY = state.predicted_screen_y || 0;
+  // --- 60-144 FPS GPU Smooth Render Loop ---
+  function renderLoop() {
+    if (latestState) {
+      const px = latestState.current_pupil_x || 0.5;
+      const py = latestState.current_pupil_y || 0.5;
+      let rawX = latestState.predicted_screen_x || 0;
+      let rawY = latestState.predicted_screen_y || 0;
 
-    if (targetScreenX <= 0 || targetScreenX > window.screen.width) {
-      // Invert horizontal axis for natural mirror gaze tracking
-      targetScreenX = (1.0 - px) * window.innerWidth;
-      targetScreenY = py * window.innerHeight;
-    } else {
-      // Scale from physical screen geometry to browser window
-      targetScreenX = (targetScreenX / window.screen.width) * window.innerWidth;
-      targetScreenY = (targetScreenY / window.screen.height) * window.innerHeight;
+      if (rawX <= 0 || rawX > window.screen.width) {
+        targetScreenX = (1.0 - px) * window.innerWidth;
+        targetScreenY = py * window.innerHeight;
+      } else {
+        targetScreenX = (rawX / window.screen.width) * window.innerWidth;
+        targetScreenY = (rawY / window.screen.height) * window.innerHeight;
+      }
+
+      // Adaptive dual-speed lerp (responsive saccade snap, stable fixation)
+      const dx = targetScreenX - reticleX;
+      const dy = targetScreenY - reticleY;
+      const dist = Math.hypot(dx, dy);
+      const alpha = dist > 90 ? 0.38 : 0.20;
+      reticleX += dx * alpha;
+      reticleY += dy * alpha;
+
+      if (gazePointer) {
+        gazePointer.style.transform = `translate3d(${reticleX - 24}px, ${reticleY - 24}px, 0)`;
+      }
+
+      handleGazeHover(reticleX, reticleY, latestState.double_blink_detected);
     }
-
-    // Smooth reticle motion with exponential moving average
-    reticleX += (targetScreenX - reticleX) * 0.25;
-    reticleY += (targetScreenY - reticleY) * 0.25;
-
-    if (gazePointer) {
-      gazePointer.style.transform = `translate(${reticleX}px, ${reticleY}px)`;
-    }
-
-    // 4. Hit Testing & Dwell Detection
-    handleGazeHover(reticleX, reticleY, state.double_blink_detected);
+    requestAnimationFrame(renderLoop);
   }
 
   function handleGazeHover(x, y, isDoubleBlink) {
@@ -285,6 +301,7 @@
   });
 
   // --- Start App ---
-  fetchState();
+  pollTelemetry();
+  requestAnimationFrame(renderLoop);
   appendLog('Connected to FreeSight-OS local streaming server.');
 })();

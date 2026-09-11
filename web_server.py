@@ -55,6 +55,7 @@ WEB_DIR = Path(__file__).resolve().parent / "web"
 SERVER_PORT = 8080
 
 global_lock = threading.Lock()
+latest_frame_id: int = 0
 latest_jpeg_bytes: Optional[bytes] = None
 latest_telemetry: Dict[str, Any] = {
     "fps": 30.0,
@@ -85,7 +86,7 @@ server_running = True
 # ---------------------------------------------------------------------------
 
 def vision_background_loop():
-    global latest_jpeg_bytes, latest_telemetry, server_running
+    global latest_jpeg_bytes, latest_telemetry, server_running, latest_frame_id
 
     logger.info("Initializing Webcam and Vision Pipeline for Browser Studio...")
     webcam = WebcamCapture()
@@ -163,11 +164,12 @@ def vision_background_loop():
                 info_text = f"FPS: {actual_fps:4.1f} | EAR: {ear:.2f} | DIR: {direction.name} | CONF: {conf*100:.0f}%"
                 cv2.putText(display_frame, info_text, (16, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 242, 254), 2, cv2.LINE_AA)
 
-            # Encode frame to JPEG
-            success, enc_jpg = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            # Encode frame to JPEG with high performance quality
+            success, enc_jpg = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 75])
             if success:
                 jpg_bytes = enc_jpg.tobytes()
                 with global_lock:
+                    latest_frame_id += 1
                     latest_jpeg_bytes = jpg_bytes
                     latest_telemetry = {
                         "fps": round(actual_fps, 1),
@@ -274,18 +276,27 @@ class StudioHTTPHandler(BaseHTTPRequestHandler):
             self.send_header("Connection", "close")
             self.end_headers()
 
+            last_sent_id = -1
             try:
                 while server_running:
                     with global_lock:
-                        frame_bytes = latest_jpeg_bytes
+                        if latest_frame_id != last_sent_id and latest_jpeg_bytes is not None:
+                            frame_bytes = latest_jpeg_bytes
+                            last_sent_id = latest_frame_id
+                        else:
+                            frame_bytes = None
 
                     if frame_bytes:
-                        self.wfile.write(b"--frame\r\n")
-                        self.wfile.write(b"Content-Type: image/jpeg\r\n")
-                        self.wfile.write(f"Content-Length: {len(frame_bytes)}\r\n\r\n".encode("utf-8"))
-                        self.wfile.write(frame_bytes)
-                        self.wfile.write(b"\r\n")
-                    time.sleep(0.033)  # ~30 FPS
+                        chunk = (
+                            b"--frame\r\n"
+                            b"Content-Type: image/jpeg\r\n"
+                            + f"Content-Length: {len(frame_bytes)}\r\n\r\n".encode("utf-8")
+                            + frame_bytes
+                            + b"\r\n"
+                        )
+                        self.wfile.write(chunk)
+                        self.wfile.flush()
+                    time.sleep(0.01)  # Low-latency polling check
             except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, OSError):
                 pass
         else:

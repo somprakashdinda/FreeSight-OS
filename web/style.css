@@ -106,8 +106,7 @@ body {
   height: 48px;
   pointer-events: none;
   z-index: 99999;
-  transform: translate(-50%, -50%);
-  transition: transform 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+  will-change: transform;
   display: flex;
   align-items: center;
   justify-content: center;
