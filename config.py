@@ -530,6 +530,32 @@ class V9ResourceEnclosureConfig:
     THERMAL_JUNCTION_MAX_C: float = 75.0
 
 
+@dataclass(frozen=True)
+class V13BioSynapticConfig:
+    """Configuration parameters for v13.0 Bio-Synaptic Analog Neuromorphic Co-Processor."""
+    ANALOG_CHANNELS: int = 128
+    THRESHOLD_VOLTAGE: float = 0.75
+    LEAK_RATE: float = 0.92
+    MAX_LATENCY_MS: float = 0.001
+
+
+@dataclass(frozen=True)
+class V13WatchdogConfig:
+    """Configuration parameters for v13.0 Cryptographic Immutable Hardware Watchdog."""
+    TOKEN_EXPIRY_SECONDS: float = 300.0
+    POWER_FLAGS: int = 0x80000000 | 0x00010000 | 0x00000002
+    RETRY_BACKOFF_BASE_MS: float = 50.0
+    RETRY_BACKOFF_MAX_MS: float = 500.0
+
+
+@dataclass(frozen=True)
+class V13ResourceEnclosureConfig:
+    """Configuration parameters for v13.0 Zero-Entropy Resource Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.001
+    MAX_WORKING_SET_MB: float = 1.0
+    TARGET_SCORE: float = 100.00000
+
+
 # --------------------------------------------------------------------------- #
 # Aggregate, ready-to-import singletons
 # --------------------------------------------------------------------------- #
@@ -550,6 +576,16 @@ V9_CONFIG: Final[dict] = {
     "scroll": V9_SCROLL_CONFIG,
     "resource": V9_RESOURCE_CONFIG,
     "score_target": 100.0,
+}
+
+V13_BIOSYNAPTIC_CONFIG: Final[V13BioSynapticConfig] = V13BioSynapticConfig()
+V13_WATCHDOG_CONFIG: Final[V13WatchdogConfig] = V13WatchdogConfig()
+V13_RESOURCE_CONFIG: Final[V13ResourceEnclosureConfig] = V13ResourceEnclosureConfig()
+V13_CONFIG: Final[dict] = {
+    "biosynaptic": V13_BIOSYNAPTIC_CONFIG,
+    "watchdog": V13_WATCHDOG_CONFIG,
+    "resource": V13_RESOURCE_CONFIG,
+    "score_target": 100.00000,
 }
 
 
