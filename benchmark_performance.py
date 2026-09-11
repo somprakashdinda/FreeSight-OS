@@ -41,9 +41,12 @@ from persistent_camera import PersistentCameraDaemon
 from work_limit_enforcer import WorkLimitEnforcer
 from biosynaptic_core import BioSynapticNeuromorphicCore
 from jit_mutator import JITAssemblyMutator
+from body_kinematics import BodyKinematicTracker
+from body_click_mapper import BodyKinematicClickEngine
+from lean_scroller import TorsoLeanScroller
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
-from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG
+from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +104,9 @@ class FreeSightPerformanceProfiler:
             "work_limit_enforce_ms": (0.05, "ms (< 0.05 ms v9 resource guard SLA)"),
             "biosynaptic_analog_spike_ms": (0.01, "ms (< 0.01 ms v13 analog neuromorphic SLA)"),
             "jit_assembly_project_ms": (0.01, "ms (< 0.01 ms v13 vectorized JIT SLA)"),
+            "body_kinematics_step_ms": (0.05, "ms (< 0.05 ms v14 body pose SLA)"),
+            "body_click_mapper_ms": (0.01, "ms (< 0.01 ms v14 nod click SLA)"),
+            "lean_scroller_step_ms": (0.05, "ms (< 0.05 ms v14 lean scroll SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -277,6 +283,39 @@ class FreeSightPerformanceProfiler:
         jit_ms = ((t1 - t0) / N) * 1000.0
         self.results["jit_assembly_project_ms"] = round(jit_ms, 5)
         print(f"  [+] JITAssemblyMutator.project():     {jit_ms:8.5f} ms/op    (Target: < 0.01 ms)")
+
+        # 14. v14.0 Body Kinematics & Posture Estimation Latency
+        kinematics = BodyKinematicTracker(enable_mediapipe_pose=False)
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = kinematics.estimate_from_head_pose(5.0 + (i % 5), 1.0, -1.0)
+        t1 = time.perf_counter()
+        kin_ms = ((t1 - t0) / N) * 1000.0
+        self.results["body_kinematics_step_ms"] = round(kin_ms, 5)
+        print(f"  [+] BodyKinematicTracker.estimate():  {kin_ms:8.5f} ms/op    (Target: < 0.05 ms)")
+
+        # 15. v14.0 Body Movement Action & Click Engine Latency
+        click_engine = BodyKinematicClickEngine()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = click_engine.process_body_frame(2.0 + (i % 3), 1.0, 500.0, 500.0)
+        t1 = time.perf_counter()
+        clk_ms = ((t1 - t0) / N) * 1000.0
+        self.results["body_click_mapper_ms"] = round(clk_ms, 5)
+        print(f"  [+] BodyKinematicClickEngine:         {clk_ms:8.5f} ms/op    (Target: < 0.01 ms)")
+
+        # 16. v14.0 Torso Lean Kinetic Scrolling & Panning Latency
+        lean_scroller = TorsoLeanScroller()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = lean_scroller.process_lean(3.0 + (i % 5), 1.0)
+        t1 = time.perf_counter()
+        lean_ms = ((t1 - t0) / N) * 1000.0
+        self.results["lean_scroller_step_ms"] = round(lean_ms, 5)
+        print(f"  [+] TorsoLeanScroller.process_lean(): {lean_ms:8.5f} ms/op    (Target: < 0.05 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)

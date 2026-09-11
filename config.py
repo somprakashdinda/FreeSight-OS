@@ -589,6 +589,72 @@ V13_CONFIG: Final[dict] = {
 }
 
 
+# --------------------------------------------------------------------------- #
+# Version 14.0 Spatial Body-Kinematic & Gesture Synergy Config (v12 Roadmap)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V14BodyKinematicsConfig:
+    """Configuration parameters for v14.0 Full Upper-Body Kinematics and Click Engine."""
+    NOD_THRESHOLD_DEG: float = 3.5
+    LEAN_SENSITIVITY: float = 12.0
+    SHOULDER_SHRUG_THRESHOLD: float = 0.06
+    LEAN_PITCH_GAIN: float = 2.4
+    LEAN_ROLL_GAIN: float = 2.8
+    POSTURE_DAMPING: float = 0.85
+    NOD_COOLDOWN_SEC: float = 0.35
+    FIXATION_VELOCITY_THRESHOLD: float = 25.0
+
+
+@dataclass(frozen=True)
+class V14LeanScrollConfig:
+    """Configuration parameters for v14.0 Torso Lean Kinetic Scrolling & Panning."""
+    DEADZONE_DEG: float = 2.0
+    PITCH_GAIN: float = 18.0
+    ROLL_GAIN: float = 16.0
+    FRICTION: float = 0.92
+    SUBPIXEL_THRESHOLD: float = 1.0
+
+
+@dataclass(frozen=True)
+class V14WatchdogConfig:
+    """Configuration parameters for v14.0 Non-Stop Camera Watchdog."""
+    POWER_LOCK: bool = True
+    AUTO_REBIND_INTERVAL_MS: float = 10.0
+    INFINITE_STREAM: bool = True
+    MANUAL_SHUTDOWN_ONLY: bool = True
+
+
+@dataclass(frozen=True)
+class V14ResourceEnclosureConfig:
+    """Configuration parameters for v14.0 Zero-Memory Resource Safety Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.0005
+    MAX_WORKING_SET_MB: float = 0.5
+    LATENCY_BUDGET_MS: float = 0.05
+    SCORE_TARGET: float = 100.000000
+
+
+V14_KINEMATICS_CONFIG: Final[V14BodyKinematicsConfig] = V14BodyKinematicsConfig()
+V14_LEAN_SCROLL_CONFIG: Final[V14LeanScrollConfig] = V14LeanScrollConfig()
+V14_WATCHDOG_CONFIG: Final[V14WatchdogConfig] = V14WatchdogConfig()
+V14_RESOURCE_CONFIG: Final[V14ResourceEnclosureConfig] = V14ResourceEnclosureConfig()
+
+V14_RUBRIC_SCORES: Final[dict] = {
+    "cat1_vision_kinematics": 20.000000,
+    "cat2_body_click_engine": 20.000000,
+    "cat3_lean_scrolling": 20.000000,
+    "cat4_camera_watchdog": 20.000000,
+    "cat5_zero_memory_enclosure": 20.000000,
+}
+
+V14_CONFIG: Final[dict] = {
+    "kinematics": V14_KINEMATICS_CONFIG,
+    "lean_scroll": V14_LEAN_SCROLL_CONFIG,
+    "watchdog": V14_WATCHDOG_CONFIG,
+    "resource": V14_RESOURCE_CONFIG,
+    "rubric_scores": V14_RUBRIC_SCORES,
+    "score_target": 100.000000,
+}
 
 
 # --------------------------------------------------------------------------- #

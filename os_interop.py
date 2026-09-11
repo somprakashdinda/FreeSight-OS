@@ -25,6 +25,7 @@ import numpy as np
 from config import HOST_OS_CONFIG, CV_CONFIG
 from screen_geometry import initialize_dpi_awareness
 from smooth_scroller import SubPixelSmoothScroller
+from lean_scroller import TorsoLeanScroller
 
 # Ensure Per-Monitor V2 DPI awareness is initialized
 initialize_dpi_awareness()
@@ -52,7 +53,12 @@ if _IS_WINDOWS:
     MOUSEEVENTF_MOVE = 0x0001
     MOUSEEVENTF_LEFTDOWN = 0x0002
     MOUSEEVENTF_LEFTUP = 0x0004
+    MOUSEEVENTF_RIGHTDOWN = 0x0008
+    MOUSEEVENTF_RIGHTUP = 0x0010
+    MOUSEEVENTF_MIDDLEDOWN = 0x0020
+    MOUSEEVENTF_MIDDLEUP = 0x0040
     MOUSEEVENTF_WHEEL = 0x0800
+    MOUSEEVENTF_HWHEEL = 0x01000
     MOUSEEVENTF_VIRTUALDESK = 0x4000
     MOUSEEVENTF_ABSOLUTE = 0x8000
 
@@ -193,6 +199,58 @@ class NativeWin32Input:
             dwExtraInfo=None,
         )
         return self._user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT)) == 1
+
+    def scroll_horizontal(self, amount: int) -> bool:
+        if not self._user32:
+            return False
+        inp = INPUT(type=INPUT_MOUSE)
+        inp.mi = MOUSEINPUT(
+            dx=0,
+            dy=0,
+            mouseData=amount,
+            dwFlags=MOUSEEVENTF_HWHEEL,
+            time=0,
+            dwExtraInfo=None,
+        )
+        return self._user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT)) == 1
+
+    def right_click(self, x: int, y: int) -> bool:
+        if not self._user32:
+            return False
+        norm_x, norm_y = self._to_normalized_coords(x, y)
+        inputs = (INPUT * 2)()
+        inputs[0].type = INPUT_MOUSE
+        inputs[0].mi = MOUSEINPUT(
+            dx=norm_x, dy=norm_y, mouseData=0,
+            dwFlags=MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_RIGHTDOWN,
+            time=0, dwExtraInfo=None,
+        )
+        inputs[1].type = INPUT_MOUSE
+        inputs[1].mi = MOUSEINPUT(
+            dx=norm_x, dy=norm_y, mouseData=0,
+            dwFlags=MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_RIGHTUP,
+            time=0, dwExtraInfo=None,
+        )
+        return self._user32.SendInput(2, inputs, ctypes.sizeof(INPUT)) == 2
+
+    def middle_click(self, x: int, y: int) -> bool:
+        if not self._user32:
+            return False
+        norm_x, norm_y = self._to_normalized_coords(x, y)
+        inputs = (INPUT * 2)()
+        inputs[0].type = INPUT_MOUSE
+        inputs[0].mi = MOUSEINPUT(
+            dx=norm_x, dy=norm_y, mouseData=0,
+            dwFlags=MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MIDDLEDOWN,
+            time=0, dwExtraInfo=None,
+        )
+        inputs[1].type = INPUT_MOUSE
+        inputs[1].mi = MOUSEINPUT(
+            dx=norm_x, dy=norm_y, mouseData=0,
+            dwFlags=MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MIDDLEUP,
+            time=0, dwExtraInfo=None,
+        )
+        return self._user32.SendInput(2, inputs, ctypes.sizeof(INPUT)) == 2
 
     def press_key(self, vk_code: int) -> bool:
         if not self._user32:
@@ -362,6 +420,8 @@ class OSController:
 
         # v9.0 Sub-Pixel Smooth Scrolling Engine
         self._smooth_scroller = SubPixelSmoothScroller(friction=0.90, gain=45.0, deadzone=0.05)
+        # v14.0 Torso Lean Kinetic Scrolling & Panning Engine
+        self._lean_scroller = TorsoLeanScroller(deadzone_deg=2.0, pitch_gain=18.0, roll_gain=16.0, friction=0.92)
 
         # Prevent screen timeout / sleep while FreeSight-OS is active
         keep_display_active(True)
@@ -445,6 +505,53 @@ class OSController:
         if ticks != 0 and self._native:
             self._native.scroll(ticks * WHEEL_DELTA)
         return ticks
+
+    def scroll_lean(self, pitch_deg: float, roll_deg: float, dt: float = 0.0333) -> Tuple[int, int]:
+        """
+        Processes torso pitch and roll for 2D continuous sub-pixel scrolling and panning (v14.0).
+        """
+        res = self._lean_scroller.process_lean(pitch_deg, roll_deg, dt)
+        ticks_y = res.get("ticks_y", 0)
+        ticks_x = res.get("ticks_x", 0)
+        if ticks_y != 0 and self._native:
+            # Positive pitch = lean forward = scroll down
+            self._native.scroll(-ticks_y * WHEEL_DELTA)
+        if ticks_x != 0 and self._native:
+            self._native.scroll_horizontal(ticks_x * WHEEL_DELTA)
+        return ticks_y, ticks_x
+
+    def inject_secondary_action(self, action_type: str, x: int, y: int) -> str:
+        """
+        Executes secondary gesture actions (Right Click, Middle Click, Drag).
+        """
+        clamped_x = max(5, min(x, HOST_OS_CONFIG.screen_width - 5))
+        clamped_y = max(5, min(y, HOST_OS_CONFIG.screen_height - 5))
+
+        if action_type == "RIGHT_CLICK":
+            if self._native and self._native.right_click(clamped_x, clamped_y):
+                return f"OSController: native right-click at ({clamped_x}, {clamped_y})"
+            if _PYAUTOGUI_AVAILABLE:
+                pyautogui.rightClick(clamped_x, clamped_y)
+                return f"OSController: pyautogui right-click at ({clamped_x}, {clamped_y})"
+
+        elif action_type == "MIDDLE_CLICK":
+            if self._native and self._native.middle_click(clamped_x, clamped_y):
+                return f"OSController: native middle-click at ({clamped_x}, {clamped_y})"
+            if _PYAUTOGUI_AVAILABLE:
+                pyautogui.middleClick(clamped_x, clamped_y)
+                return f"OSController: pyautogui middle-click at ({clamped_x}, {clamped_y})"
+
+        elif action_type == "DRAG_TOGGLE":
+            if _PYAUTOGUI_AVAILABLE:
+                pyautogui.mouseDown(clamped_x, clamped_y)
+                return f"OSController: mouseDown drag at ({clamped_x}, {clamped_y})"
+
+        elif action_type == "DRAG_RELEASE":
+            if _PYAUTOGUI_AVAILABLE:
+                pyautogui.mouseUp(clamped_x, clamped_y)
+                return f"OSController: mouseUp drag at ({clamped_x}, {clamped_y})"
+
+        return f"OSController: secondary action {action_type} dispatched"
 
     def move_cursor(self, x: int, y: int) -> None:
         """Move the OS mouse cursor with virtual-desktop multi-monitor awareness."""

@@ -1,26 +1,29 @@
 {
-  "state_snapshot_us": 0.0379,
-  "ukf_step_ms": 0.02532,
-  "screen_mapper_predict_ms": 0.04017,
-  "spatial_6dof_compensation_ms": 0.00353,
-  "implicit_calibration_step_ms": 0.00567,
-  "neuromorphic_dvs_packet_ms": 0.02422,
-  "neuromorphic_events_per_sec": 20644181.0,
-  "bci_intent_fusion_ms": 0.00011,
-  "os_input_dispatch_ms": 0.00773,
-  "micro_transformer_predict_ms": 0.02518,
-  "subpixel_smooth_scroll_ms": 0.00054,
-  "work_limit_enforce_ms": 0.00138,
-  "biosynaptic_analog_spike_ms": 0.00822,
-  "jit_assembly_project_ms": 0.00288,
-  "live_camera_stream_fps": 20.75,
-  "pure_inference_latency_ms": 14.28,
-  "pure_inference_capacity_fps": 70.0,
-  "mean_frame_latency_ms": 48.18,
-  "p50_frame_latency_ms": 48.83,
-  "p95_frame_latency_ms": 64.64,
-  "p99_frame_latency_ms": 67.65,
-  "frame_jitter_std_ms": 10.07,
+  "state_snapshot_us": 0.0345,
+  "ukf_step_ms": 0.03309,
+  "screen_mapper_predict_ms": 0.05113,
+  "spatial_6dof_compensation_ms": 0.00329,
+  "implicit_calibration_step_ms": 0.00505,
+  "neuromorphic_dvs_packet_ms": 0.02158,
+  "neuromorphic_events_per_sec": 23167562.0,
+  "bci_intent_fusion_ms": 0.00012,
+  "os_input_dispatch_ms": 0.00727,
+  "micro_transformer_predict_ms": 0.02118,
+  "subpixel_smooth_scroll_ms": 0.00056,
+  "work_limit_enforce_ms": 0.00147,
+  "biosynaptic_analog_spike_ms": 0.00693,
+  "jit_assembly_project_ms": 0.00244,
+  "body_kinematics_step_ms": 0.00081,
+  "body_click_mapper_ms": 0.00058,
+  "lean_scroller_step_ms": 0.00059,
+  "live_camera_stream_fps": 27.8,
+  "pure_inference_latency_ms": 6.5,
+  "pure_inference_capacity_fps": 153.8,
+  "mean_frame_latency_ms": 35.97,
+  "p50_frame_latency_ms": 32.29,
+  "p95_frame_latency_ms": 49.77,
+  "p99_frame_latency_ms": 61.47,
+  "frame_jitter_std_ms": 9.63,
   "ram_usage_mb": 0.0,
   "ram_delta_mb": 0.0,
   "sla_compliance_pct": 100.0,
@@ -29,108 +32,129 @@
   "evaluation_table": [
     {
       "metric": "state_snapshot_us",
-      "measured": 0.0379,
+      "measured": 0.0345,
       "threshold": 10.0,
       "description": "\u00b5s (< 10 \u00b5s lock-free SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "ukf_step_ms",
-      "measured": 0.02532,
+      "measured": 0.03309,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms predictive filter SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "screen_mapper_predict_ms",
-      "measured": 0.04017,
+      "measured": 0.05113,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms RLS mapping SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "spatial_6dof_compensation_ms",
-      "measured": 0.00353,
+      "measured": 0.00329,
       "threshold": 0.2,
       "description": "ms (< 0.20 ms 6DOF parallax SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "implicit_calibration_step_ms",
-      "measured": 0.00567,
+      "measured": 0.00505,
       "threshold": 0.5,
       "description": "ms (< 0.50 ms autonomous calibrator SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "neuromorphic_dvs_packet_ms",
-      "measured": 0.02422,
+      "measured": 0.02158,
       "threshold": 0.8,
       "description": "ms (< 0.80 ms event HAL SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "bci_intent_fusion_ms",
-      "measured": 0.00011,
+      "measured": 0.00012,
       "threshold": 1.0,
       "description": "ms (< 1.00 ms intent gating SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "os_input_dispatch_ms",
-      "measured": 0.00773,
+      "measured": 0.00727,
       "threshold": 1.0,
       "description": "ms (< 1.00 ms SendInput SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "micro_transformer_predict_ms",
-      "measured": 0.02518,
+      "measured": 0.02118,
       "threshold": 1.1,
       "description": "ms (< 1.10 ms v7 intent forecast SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "subpixel_smooth_scroll_ms",
-      "measured": 0.00054,
+      "measured": 0.00056,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v9 physics scroller SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "work_limit_enforce_ms",
-      "measured": 0.00138,
+      "measured": 0.00147,
       "threshold": 0.05,
       "description": "ms (< 0.05 ms v9 resource guard SLA)",
       "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "biosynaptic_analog_spike_ms",
-      "measured": 0.00822,
+      "measured": 0.00693,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v13 analog neuromorphic SLA)",
       "status": "PASS"
     },
     {
       "metric": "jit_assembly_project_ms",
-      "measured": 0.00288,
+      "measured": 0.00244,
       "threshold": 0.01,
       "description": "ms (< 0.01 ms v13 vectorized JIT SLA)",
-      "status": "PASS"
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "body_kinematics_step_ms",
+      "measured": 0.00081,
+      "threshold": 0.05,
+      "description": "ms (< 0.05 ms v14 body pose SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "body_click_mapper_ms",
+      "measured": 0.00058,
+      "threshold": 0.01,
+      "description": "ms (< 0.01 ms v14 nod click SLA)",
+      "status": "PASS [ULTRA-FAST]"
+    },
+    {
+      "metric": "lean_scroller_step_ms",
+      "measured": 0.00059,
+      "threshold": 0.05,
+      "description": "ms (< 0.05 ms v14 lean scroll SLA)",
+      "status": "PASS [ULTRA-FAST]"
     },
     {
       "metric": "pure_inference_latency_ms",
-      "measured": 14.28,
+      "measured": 6.5,
       "threshold": 25.0,
       "description": "ms (< 25.0 ms algorithmic budget)",
       "status": "PASS"
     },
     {
       "metric": "live_camera_stream_fps",
-      "measured": 20.75,
+      "measured": 27.8,
       "threshold": 20.0,
       "description": "FPS (>= 20.0 FPS real-world webcam pacing SLA)",
-      "status": "PASS"
+      "status": "PASS [EXCEEDED]"
     }
   ]
 }
