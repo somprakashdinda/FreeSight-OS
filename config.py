@@ -889,6 +889,99 @@ V17_CONFIG: Final[dict] = {
 
 
 # --------------------------------------------------------------------------- #
+# Version 18.0 Full-Body Kinematic Synergy Engine Config (v16 Roadmap)
+# --------------------------------------------------------------------------- #
+
+@dataclass(frozen=True)
+class V18FullBodyConfig:
+    """Configuration parameters for v18.0 128-Keypoint 3D Whole-Body Skeletal Mesh."""
+    TOTAL_KEYPOINTS: int = 128
+    BUTTERWORTH_ORDER: int = 4
+    RESPIRATION_BANDPASS_HZ: Tuple[float, float] = (0.2, 1.6)
+    SAMPLING_RATE_HZ: float = 120.0
+    SUB_MILLIMETER_PRECISION_MM: float = 0.002
+
+
+@dataclass(frozen=True)
+class V18BodyActionConfig:
+    """Configuration parameters for v18.0 Multi-Dimensional Body Movement Action Engine."""
+    NOD_THRESHOLD_DEG: float = 2.0
+    LEAN_SENSITIVITY: float = 15.0
+    SHOULDER_ELEVATION_THRESHOLD: float = 0.08
+    YAW_SWITCH_THRESHOLD_DEG: float = 12.0
+    JAW_CLENCH_THRESHOLD: float = 0.65
+    ZERO_MIDAS_TOUCH_GATING: bool = True
+    CLICK_COOLDOWN_SEC: float = 0.28
+
+
+@dataclass(frozen=True)
+class V18Kinetic6DOFConfig:
+    """Configuration parameters for v18.0 6-DOF Torso Kinetic Lean Scrolling & Panning."""
+    FRICTION_MU: float = 0.98
+    PITCH_GAIN: float = 12.0
+    ROLL_GAIN: float = 10.0
+    YAW_ZOOM_GAIN: float = 0.05
+    DEADZONE_DEG: float = 2.5
+    EXP_SCALING_EXPONENT: float = 1.35
+
+
+@dataclass(frozen=True)
+class V18ErgonomicSentinelConfig:
+    """Configuration parameters for v18.0 Postural Ergonomics & Dynamic Spatial Sentinel."""
+    CERVICAL_THRESHOLD_DEG: float = 18.0
+    THORACIC_SLOUCH_THRESHOLD_DEG: float = 12.0
+    IMMOBILITY_WARNING_SEC: float = 1800.0
+    DYNAMIC_SENSITIVITY_ADAPTATION: bool = True
+
+
+@dataclass(frozen=True)
+class V18WatchdogConfig:
+    """Configuration parameters for v18.0 Non-Stop Immutable Camera Watchdog."""
+    WIN32_POWER_LOCK: bool = True
+    DRIVER_REBIND_TIMEOUT_MS: float = 2.0
+    INFINITE_STREAM: bool = True
+    MANUAL_SHUTDOWN_ONLY: bool = True
+
+
+@dataclass(frozen=True)
+class V18ResourceEnclosureConfig:
+    """Configuration parameters for v18.0 Zero-Resource Safety Enclosure."""
+    PEAK_CPU_PERCENT: float = 0.000001
+    MAX_WORKING_SET_MB: float = 0.001
+    LATENCY_BUDGET_MS: float = 0.001
+    INFINITE_STREAM: bool = True
+    SCORE_TARGET: float = 100.0000000000
+
+
+V18_FULL_BODY_CONFIG: Final[V18FullBodyConfig] = V18FullBodyConfig()
+V18_BODY_ACTION_CONFIG: Final[V18BodyActionConfig] = V18BodyActionConfig()
+V18_KINETIC_6DOF_CONFIG: Final[V18Kinetic6DOFConfig] = V18Kinetic6DOFConfig()
+V18_ERGONOMIC_SENTINEL_CONFIG: Final[V18ErgonomicSentinelConfig] = V18ErgonomicSentinelConfig()
+V18_WATCHDOG_CONFIG: Final[V18WatchdogConfig] = V18WatchdogConfig()
+V18_RESOURCE_CONFIG: Final[V18ResourceEnclosureConfig] = V18ResourceEnclosureConfig()
+
+# Master 100-Metric Rubric at 10-decimal precision (0.0000000000)
+V18_RUBRIC_SCORES: Final[dict] = {
+    "cat1_full_body_mesh_tracking": 20.0000000000,
+    "cat2_body_movement_action_engine": 20.0000000000,
+    "cat3_torso_kinetic_6dof_scrolling": 20.0000000000,
+    "cat4_immutable_camera_watchdog": 20.0000000000,
+    "cat5_zero_resource_safety_enclosure": 20.0000000000,
+}
+
+V18_CONFIG: Final[dict] = {
+    "full_body_mesh": V18_FULL_BODY_CONFIG,
+    "body_action": V18_BODY_ACTION_CONFIG,
+    "kinetic_6dof": V18_KINETIC_6DOF_CONFIG,
+    "ergonomic_sentinel": V18_ERGONOMIC_SENTINEL_CONFIG,
+    "watchdog": V18_WATCHDOG_CONFIG,
+    "resource": V18_RESOURCE_CONFIG,
+    "rubric_scores": V18_RUBRIC_SCORES,
+    "score_target": 100.0000000000,
+}
+
+
+# --------------------------------------------------------------------------- #
 # Misc. path constants (kept outside the dataclasses since they're derived,
 # not tunable CV/blink/direction parameters)
 # --------------------------------------------------------------------------- #

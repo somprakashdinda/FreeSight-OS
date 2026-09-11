@@ -56,6 +56,10 @@ from gestural_click_engine import DeepBodyKinematicEngine
 from spatial_kinetic_scroller import SpatialKineticScroller
 from posture_sentinel import ErgonomicPostureSentinel
 from enclave_watchdog_v2 import HardwareEnclaveWatchdogV2
+from full_body_mesh import FullBodySkeletalMeshTracker
+from body_action_mapper import FullBodyKinematicActionEngine
+from torso_lean_scroller import TorsoKinetic6DOFScroller
+from ergonomic_sentinel import PosturalErgonomicSentinel
 from os_interop import OSController, WebcamCapture
 from vision_pipeline import GazeTracker
 from config import CV_CONFIG, V5_CONFIG, V6_CONFIG, V9_CONFIG, V13_CONFIG, V14_CONFIG, V15_CONFIG, V16_CONFIG, V17_CONFIG
@@ -128,6 +132,10 @@ class FreeSightPerformanceProfiler:
             "gestural_click_engine_ms": (0.005, "ms (< 0.005 ms v17 postural click SLA)"),
             "spatial_kinetic_scroller_ms": (0.005, "ms (< 0.005 ms v17 3D lean scroll SLA)"),
             "posture_sentinel_ms": (0.005, "ms (< 0.005 ms v17 posture sentinel SLA)"),
+            "full_body_skeletal_mesh_ms": (0.015, "ms (< 0.015 ms v18 128-keypoint SLA)"),
+            "body_action_mapper_ms": (0.005, "ms (< 0.005 ms v18 action mapper SLA)"),
+            "torso_kinetic_6dof_scroller_ms": (0.005, "ms (< 0.005 ms v18 6DOF scroller SLA)"),
+            "postural_ergonomic_sentinel_ms": (0.005, "ms (< 0.005 ms v18 ergonomic sentinel SLA)"),
             "pure_inference_latency_ms": (25.0, "ms (< 25.0 ms algorithmic budget)"),
             "live_camera_stream_fps": (20.0, "FPS (>= 20.0 FPS real-world webcam pacing SLA)"),
         }
@@ -436,6 +444,50 @@ class FreeSightPerformanceProfiler:
         post_ms = ((t1 - t0) / N) * 1000.0
         self.results["posture_sentinel_ms"] = round(post_ms, 6)
         print(f"  [+] ErgonomicPostureSentinel:         {post_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 26. v18.0 128-Keypoint 3D Skeletal Mesh Tracking Latency
+        fb_tracker = FullBodySkeletalMeshTracker()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = fb_tracker.track_full_body_mesh(2.0 + (i % 5), 1.0, 3.0, 1.5, 0.5, 0.02, 0.01, 0.0)
+        t1 = time.perf_counter()
+        fb_ms = ((t1 - t0) / N) * 1000.0
+        self.results["full_body_skeletal_mesh_ms"] = round(fb_ms, 6)
+        print(f"  [+] FullBodySkeletalMeshTracker:      {fb_ms:8.5f} ms/op    (Target: < 0.015 ms)")
+
+        # 27. v18.0 Body Movement Action & Click Engine Latency
+        action_engine = FullBodyKinematicActionEngine()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = action_engine.process_body_frame(1.0 + (i % 3), 0.0, 0.0, 0.0, 960.0, 540.0)
+        t1 = time.perf_counter()
+        act_ms = ((t1 - t0) / N) * 1000.0
+        self.results["body_action_mapper_ms"] = round(act_ms, 6)
+        print(f"  [+] FullBodyKinematicActionEngine:    {act_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 28. v18.0 6-DOF Torso Kinetic Lean Scrolling & Panning Latency
+        kinetic_6dof = TorsoKinetic6DOFScroller()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = kinetic_6dof.process_6dof_lean(3.0 + (i % 5), 1.5, 0.5)
+        t1 = time.perf_counter()
+        kin6_ms = ((t1 - t0) / N) * 1000.0
+        self.results["torso_kinetic_6dof_scroller_ms"] = round(kin6_ms, 6)
+        print(f"  [+] TorsoKinetic6DOFScroller:         {kin6_ms:8.5f} ms/op    (Target: < 0.005 ms)")
+
+        # 29. v18.0 Postural Ergonomics & Dynamic Spatial Sentinel Latency
+        ergo_sentinel = PosturalErgonomicSentinel()
+        N = 10000
+        t0 = time.perf_counter()
+        for i in range(N):
+            _ = ergo_sentinel.evaluate_posture(5.0 + (i % 5), 3.0, 1.0)
+        t1 = time.perf_counter()
+        erg_ms = ((t1 - t0) / N) * 1000.0
+        self.results["postural_ergonomic_sentinel_ms"] = round(erg_ms, 6)
+        print(f"  [+] PosturalErgonomicSentinel:        {erg_ms:8.5f} ms/op    (Target: < 0.005 ms)")
 
     def run_live_vision_pipeline_benchmark(self, frame_count: int = 40):
         print("\n" + "=" * 76)
